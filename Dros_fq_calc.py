@@ -37,8 +37,6 @@ def formfactor(args):
         Pq_ALLEN[q] = np.divide(np.divide(2*np.sum(np.sin(qrvec)/qrvec), lenucoor), lenucoor) + 1/lenucoor
     
     np.save(r'./pq/' + os.path.basename(args)[:-4] + '.npy', Pq_ALLEN)
-    
-    #return Pq_ALLEN
 
 if __name__ == '__main__': 
     PATH = r'./Skels connectome_mod'
@@ -47,6 +45,8 @@ if __name__ == '__main__':
     fp = [os.path.join(PATH, f) for f in fp]
     fp.sort()
     
+	# multiprocessing 
+	# use 30 threads and refresh the worker after 10 tasks
     pool = mp.Pool(30, maxtasksperchild=10)
     
     t1 = time.time()
@@ -63,8 +63,6 @@ if __name__ == '__main__':
     pool.join()
     
     time.sleep(5)
-    
-    # np.save(r'./Pq_ALLEN.npy', results)
 
 
 

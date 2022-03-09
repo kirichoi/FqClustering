@@ -32,26 +32,13 @@ q = np.logspace(-3, 3, 601)
 
 fq_dist = np.zeros((len(fp), len(fp)))
 
-
-# fp = [f for f in os.listdir('./CE_fq1') if os.path.isfile(os.path.join('./CE_fq1', f))]
-# fp = [os.path.join('./CE_fq1', f) for f in fp]
-
-# fq = np.empty((len(fp), 601))
-
-# for i in range(len(fp)):
-#     fq[i] = np.loadtxt(fp[i], usecols=1)
-
-# q = np.loadtxt(fp[0], usecols=0)
-
-# fq_dist = np.zeros((len(fp), len(fp)))
-
-#%%
+#%% Read reconstructions
 
 import os
 import neuroml.loaders as loaders
 import numpy as np
 
-PATH = r'../PolymerConnectome/CElegansNeuroML-SNAPSHOT_030213/CElegans/generatedNeuroML2'
+PATH = r'./CElegansNeuroML-SNAPSHOT_030213/CElegans/generatedNeuroML2'
 
 fp = [f for f in os.listdir(PATH) if os.path.isfile(os.path.join(PATH, f))]
 fp = [f for f in fp if "Acetylcholine" not in f]
@@ -209,23 +196,10 @@ def radiusOfGyration(morph_coor, morph_dia):
     return (rGy, cML)
 
 
-#%% Branch length histogram
-
-fig = plt.figure(figsize=(6,4))
-plt.hist(length_branch_flat, bins=84, density=True)
-plt.xlabel('Branch Length ($l$)', fontsize=15)
-plt.ylabel('Probability Density', fontsize=15)
-# plt.ylim(0, 0.025)
-# plt.xlim(-10, 20)
-# plt.savefig('./CEfigures/l_dist_full_1.pdf', dpi=300, bbox_inches='tight')
-plt.show()
-
-
-#%%
+#%% Distance calculation
 
 branch_length_average = 6.919827651963916
-
-rgymean = 2*74.81774709293238
+rgymean = 149.63549418586476
 
 i1 = np.argmin(np.abs(q - 2*np.pi/rgymean))
 i2 = np.argmin(np.abs(q - 2*np.pi/branch_length_average))+1
@@ -248,7 +222,7 @@ for i in range(len(fp)):
 link = scipy.cluster.hierarchy.linkage(scipy.spatial.distance.squareform(fq_dist), 
                                        method='complete', optimal_ordering=True)
 
-#%%
+#%% Hybrid tree cutting
 
 ind3 = cutreeHybrid(link, scipy.spatial.distance.squareform(fq_dist), minClusterSize=1)['labels']
 
@@ -266,7 +240,7 @@ for i,j in enumerate(ind3_idx):
 
 ind3_idx_sort = list(np.array(ind3_idx, dtype=object)[np.argsort(ind3_idx_rgy)[::-1]])
 
-#%% F(q) per cluster
+#%% F(q) curves per cluster
 
 cmap = cm.get_cmap('viridis', len(ind3_idx_sort))
 
@@ -286,7 +260,6 @@ for i,j in enumerate(ind3_idx_sort):
     else:
         plt.plot(q, fq[j].T, color=cmap(i))
     plt.vlines(2*np.pi/np.mean(blf), 1e-3, 10, color='k', ls='dashed')
-    # plt.vlines(2*np.pi/(2*np.mean(rgyb)), 1e-3, 10, color='k', ls='dotted')
     plt.vlines(2*np.pi/(48), 1e-3, 10, color='k', ls='dotted')
     
     line1 = 2e-4*np.power(q, -16/7)
@@ -295,22 +268,22 @@ for i,j in enumerate(ind3_idx_sort):
     line4 = 1/80*np.power(q, -1)
     line5 = 1e-3*np.power(q, -2/1)
     
-    # if i == 0:
-    # plt.plot(q[130:157], line1[130:157], lw=1.5, color='tab:blue')
-    # plt.plot(q[110:147], line2[110:147], lw=1.5, color='tab:red')
-    # plt.plot(q[180:207], line3[180:207], lw=1.5, color='tab:purple')
-    # plt.plot(q[220:270], line4[220:270], lw=1.5, color='k')
-    # plt.plot(q[150:200], line5[200:250], lw=1.5, color='tab:green')
-    
-    # plt.text(0.03, 8e-1, r'$\nu = \dfrac{7}{16}$', fontsize=13, color='tab:blue')
-    # plt.text(0.007, 5e-2, r'$\nu = \dfrac{1}{4}$', fontsize=13, color='tab:red')
-    # plt.text(0.1, 2e-1, r'$\nu = 0.388$', fontsize=13, color='tab:purple')
-    # plt.text(0.4, 5e-2, r'$\nu = 1$', fontsize=13, color='k')
-    # plt.text(0.03, 5e-2, r'$\nu = \dfrac{1}{2}$', fontsize=13, color='tab:green')
+    if i == 0:
+        plt.plot(q[130:157], line1[130:157], lw=1.5, color='tab:blue')
+        plt.plot(q[110:147], line2[110:147], lw=1.5, color='tab:red')
+        plt.plot(q[180:207], line3[180:207], lw=1.5, color='tab:purple')
+        plt.plot(q[220:270], line4[220:270], lw=1.5, color='k')
+        plt.plot(q[150:200], line5[200:250], lw=1.5, color='tab:green')
+        
+        plt.text(0.03, 8e-1, r'$\nu = \dfrac{7}{16}$', fontsize=13, color='tab:blue')
+        plt.text(0.007, 5e-2, r'$\nu = \dfrac{1}{4}$', fontsize=13, color='tab:red')
+        plt.text(0.1, 2e-1, r'$\nu = 0.388$', fontsize=13, color='tab:purple')
+        plt.text(0.4, 5e-2, r'$\nu = 1$', fontsize=13, color='k')
+        plt.text(0.03, 5e-2, r'$\nu = \dfrac{1}{2}$', fontsize=13, color='tab:green')
     
     plt.xscale('log')
     plt.yscale('log')
-    plt.xlim(2*np.pi/np.mean(25*rgymean), 1)#2*np.pi/np.mean(d2df))
+    plt.xlim(2*np.pi/np.mean(25*rgymean), 1)
     if i != 1:
         plt.ylim(2e-2, 3)
     else:
@@ -319,60 +292,12 @@ for i,j in enumerate(ind3_idx_sort):
     plt.xlabel('$q$', fontsize=18)
     plt.xticks(fontsize=18)
     plt.yticks(fontsize=18)
-    # plt.title("$C^{CE}_{" + str(i+1) + "}$", fontsize=15, pad=10)
+    plt.title("$C^{CE}_{" + str(i+1) + "}$", fontsize=15, pad=10)
     # plt.savefig('./CEfigures/Fq_C_' + str(i+1) + '_3.pdf', dpi=300, bbox_inches='tight')
     plt.show()
 
 
-#%% Morph in 3D
-
-fig = plt.figure(figsize=(24, 16))
-ax = plt.axes(projection='3d')
-ax.set_xlim(-300, 300)
-ax.set_ylim(-150, 150)
-ax.set_zlim(-300, 300)
-ax.axis('off')
-
-# for i in range(len(ind3_idx_sort)):
-for f in ind3_idx_sort[3]:
-    tararr = np.array(morph_coor[f])
-    somaIdx = np.where(np.array(morph_parent[f]) < 0)[0]
-    for p in range(len(morph_parent[f])):
-        if morph_parent[f][p] < 0:
-            pass
-        else:
-            morph_line = np.vstack((morph_coor[f][morph_id[f].index(morph_parent[f][p])], morph_coor[f][p]))
-            ax.plot3D(morph_line[:,0], morph_line[:,1], morph_line[:,2], color=cmap(i))
-# plt.savefig('./CEfigures/morph_CE_3D_1.pdf', dpi=300, bbox_inches='tight')
-plt.show()
-
-
-#%% Morph in 2D full
-
-fig = plt.figure(figsize=(24, 1))
-ax = fig.add_subplot(111)
-ax.axis('off')
-
-for i in range(len(ind3_idx_sort)):
-    for f in ind3_idx_sort[i]:
-        tararr = np.array(morph_coor[f])
-        somaIdx = np.where(np.array(morph_parent[f]) < 0)[0]
-        for p in range(len(morph_parent[f])):
-            if morph_parent[f][p] < 0:
-                pass
-            else:
-                morph_line = np.vstack((morph_coor[f][morph_id[f].index(morph_parent[f][p])], morph_coor[f][p]))
-                if i == 4:
-                    plt.plot(morph_line[:,1], morph_line[:,0], color=(0.798216, 0.280197, 0.469538, 1.0))
-                else:
-                    plt.plot(morph_line[:,1], morph_line[:,0], color=cmap(i))
-ax.set_xlim(-360, 470)
-ax.set_ylim(-40, 35)
-# ax.set_zlim(-300, 300)
-# plt.savefig('./CEfigures/morph_CE_4.png', dpi=300, bbox_inches='tight')
-plt.show()
-
-#%% Morph in 2D per cluster
+#%% Neuron reconstruction diagram per cluster
 
 for i in range(len(ind3_idx_sort)):
     fig = plt.figure(figsize=(24, 1))
@@ -392,15 +317,13 @@ for i in range(len(ind3_idx_sort)):
                     plt.plot(morph_line[:,1], morph_line[:,0], color=cmap(i))
     ax.set_xlim(-360, 470)
     ax.set_ylim(-40, 35)
-    # ax.set_zlim(-300, 300)
     # plt.savefig('./CEfigures/morph_CE_c' + str(i+1) + '_3.png', dpi=300, bbox_inches='tight')
     plt.show()
 
-#%% metric testing
+#%% Metric testing
 
 branch_length_average = 6.919827651963916
-
-rgymean = 2*74.81774709293238
+rgymean = 149.63549418586476
 
 i1 = np.argmin(np.abs(q - 2*np.pi/rgymean))
 i2 = np.argmin(np.abs(q - 2*np.pi/branch_length_average))+1
@@ -452,7 +375,7 @@ for n in range(4):
     
     ind_idx_sort_all.append(ind_idx_sort)
 
-#%%
+#%% Metric testing diagram
 
 import matplotlib.ticker as ticker
 from mpl_toolkits.axisartist.parasite_axes import SubplotHost
@@ -505,7 +428,7 @@ ax3.yaxis.set_minor_locator(ticker.FixedLocator((np.arange(5) + 0.5)))
 # ax2.xaxis.set_minor_formatter(ticker.FixedFormatter(glo_list_cluster))
 ax3.yaxis.set_minor_formatter(ticker.FixedFormatter(['Euclidean', 'Manhattan', 'Cosine', 'Frechet']))
 ax3.axis["left"].minor_ticklabels.set(fontsize=6, rotation_mode='default')
-plt.savefig('./CEfigures/CE_metric_test_1.svg', dpi=300, bbox_inches='tight')
+# plt.savefig('./CEfigures/CE_metric_test_1.svg', dpi=300, bbox_inches='tight')
 plt.show()
 
 

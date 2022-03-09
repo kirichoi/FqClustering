@@ -46,6 +46,8 @@ if __name__ == '__main__':
     fp = [os.path.join(PATH, f) for f in fp]
     fp.sort()
     
+	# multiprocessing 
+	# use 30 threads and refresh the worker after 10 tasks
     pool = mp.Pool(30, maxtasksperchild=10)
     
     t1 = time.time()

@@ -36,9 +36,9 @@ fq_full = np.empty((len(fp), len(q_full)))
 for i,j in enumerate(fp):
     fq_full[i] = np.load(j)
 
-#%%
+#%% Read reconstructions
 
-PATH2 = r'../PolymerConnectome/TEMCA2/Skels connectome_mod'
+PATH2 = r'./TEMCA2/Skels connectome_mod'
 
 fp2 = [w.replace(PATH, PATH2) for w in fp]
 fp2 = [w.replace('.npy', '.swc') for w in fp2]
@@ -254,23 +254,10 @@ def radiusOfGyration(morph_coor):
     return (rGy, cML)
 
 
-#%% Branch length histogram
-
-fig = plt.figure(figsize=(6,4))
-plt.hist(length_branch_flat_full, bins=46, density=True)
-plt.xlabel('Branch Length ($l$)', fontsize=15)
-plt.ylabel('Probability Density', fontsize=15)
-plt.ylim(0, 0.005)
-# plt.xlim(-10, 20)
-# plt.savefig('./Drosfigures/l_dist_full_1.pdf', dpi=300, bbox_inches='tight')
-plt.show()
-
-
-#%%
+#%% Distance calculation
 
 branch_length_average_full = 2.789401932780958
-
-rgymean_full = 2*72.07108928773508
+rgymean_full = 144.14217857547015
 
 i1 = np.argmin(np.abs(q_full - 2*np.pi/rgymean_full))
 i2 = np.argmin(np.abs(q_full - 2*np.pi/branch_length_average_full))+1
@@ -279,41 +266,14 @@ fq_full_dist = np.zeros((len(fp), len(fp)))
 
 for i in range(len(fp)):
     for j in range(len(fp)):
-        exp_data = np.zeros((i2-i1, 2))
-        exp_data[:,0] = np.log10(q_full)[i1:i2]
-        exp_data[:,1] = np.log10(fq_full[i,i1:i2])
-        num_data = np.zeros((i2-i1, 2))
-        num_data[:,0] = np.log10(q_full)[i1:i2]
-        num_data[:,1] = np.log10(fq_full[j,i1:i2])
-        # L2
-        # fq_full_dist[i][j] = np.linalg.norm((np.log10(fq_full[i,i1:i2])-np.log10(fq_full[j,i1:i2])))
-        # L1
-        # fq_full_dist[i][j] = np.linalg.norm((np.log10(fq_full[i,i1:i2])-np.log10(fq_full[j,i1:i2])), ord=1)
-        # cosine
-        # fq_full_dist[i][j] = scipy.spatial.distance.cosine(np.log10(fq_full[i,i1:i2]), np.log10(fq_full[j,i1:i2]))
-        # Frechet
-        fq_full_dist[i][j] = sm.frechet_dist(exp_data[:,1], num_data[:,1])
-        # PCM
-        fq_full_dist[i][j] = sm.pcm(exp_data, num_data)
+        fq_full_dist[i][j] = np.linalg.norm((np.log10(fq_full[i,i1:i2])-np.log10(fq_full[j,i1:i2])))
 
 link = scipy.cluster.hierarchy.linkage(scipy.spatial.distance.squareform(fq_full_dist), 
                                        method='complete', optimal_ordering=True)
 
-#%% Dynamic tree cut
+#%% Hybrid tree cutting - Full PN
 
 ind_full = cutreeHybrid(link, scipy.spatial.distance.squareform(fq_full_dist), minClusterSize=1)['labels']
-
-#%% Maximum silhouette
-
-silhoutte_full = []
-
-for k in np.arange(2, 70):
-    sil_full = scipy.cluster.hierarchy.fcluster(link, k, 'maxclust')
-    silhoutte_full.append(sklearn.metrics.silhouette_score(fq_full_dist, sil_full, metric="precomputed"))
-
-ind_full = scipy.cluster.hierarchy.fcluster(link, np.arange(2,70)[np.argmax(silhoutte_full)], 'maxclust')
-
-#%%
 
 ind_full_idx = []
 
@@ -328,7 +288,7 @@ for i,j in enumerate(ind_full_idx):
 
 ind_full_idx_sort = list(np.array(ind_full_idx, dtype=object)[np.argsort(ind_full_idx_rgy)[::-1]])
 
-#%%
+#%% Full PN F(q) curves per cluster
 
 cmap = cm.get_cmap('viridis', len(ind_full_idx_sort))
 
@@ -357,18 +317,18 @@ for i,j in enumerate(ind_full_idx_sort):
     line4 = 1/100*np.power(q_full, -1)
     line5 = 1e-3*np.power(q_full, -2/1)
     
-    # if i == 0:
-    #     plt.plot(q_full[130:157], line1[130:157], lw=1.5, color='tab:blue')
-    #     plt.plot(q_full[110:147], line2[110:147], lw=1.5, color='tab:red')
-    #     plt.plot(q_full[180:207], line3[180:207], lw=1.5, color='tab:purple')
-    #     plt.plot(q_full[220:270], line4[220:270], lw=1.5, color='k')
-    #     plt.plot(q_full[150:200], line5[200:250], lw=1.5, color='tab:green')
+    if i == 0:
+        plt.plot(q_full[130:157], line1[130:157], lw=1.5, color='tab:blue')
+        plt.plot(q_full[110:147], line2[110:147], lw=1.5, color='tab:red')
+        plt.plot(q_full[180:207], line3[180:207], lw=1.5, color='tab:purple')
+        plt.plot(q_full[220:270], line4[220:270], lw=1.5, color='k')
+        plt.plot(q_full[150:200], line5[200:250], lw=1.5, color='tab:green')
         
-    #     plt.text(0.03, 8e-1, r'$\nu = \dfrac{7}{16}$', fontsize=13, color='tab:blue')
-    #     plt.text(0.007, 1e-2, r'$\nu = \dfrac{1}{4}$', fontsize=13, color='tab:red')
-    #     plt.text(0.1, 2e-1, r'$\nu = 0.395$', fontsize=13, color='tab:purple')
-    #     plt.text(0.4, 1e-2, r'$\nu = 1$', fontsize=13, color='k')
-    #     plt.text(0.03, 1e-2, r'$\nu = \dfrac{1}{2}$', fontsize=13, color='tab:green')
+        plt.text(0.03, 8e-1, r'$\nu = \dfrac{7}{16}$', fontsize=13, color='tab:blue')
+        plt.text(0.007, 1e-2, r'$\nu = \dfrac{1}{4}$', fontsize=13, color='tab:red')
+        plt.text(0.1, 2e-1, r'$\nu = 0.395$', fontsize=13, color='tab:purple')
+        plt.text(0.4, 1e-2, r'$\nu = 1$', fontsize=13, color='k')
+        plt.text(0.03, 1e-2, r'$\nu = \dfrac{1}{2}$', fontsize=13, color='tab:green')
     
     plt.xscale('log')
     plt.yscale('log')
@@ -378,60 +338,12 @@ for i,j in enumerate(ind_full_idx_sort):
     plt.xlabel('$q$', fontsize=18)
     plt.xticks(fontsize=18)
     plt.yticks(fontsize=18)
-    # plt.title("$C^{Full}_{" + str(i+1) + "}$", fontsize=15, pad=10)
+    plt.title("$C^{Full}_{" + str(i+1) + "}$", fontsize=15, pad=10)
     # plt.savefig('./Drosfigures/Fq_Full_c' + str(i+1) + '.pdf', dpi=300, bbox_inches='tight')
     plt.show()
 
 
-#%% Morph 3D per cluster
-
-cmap = cm.get_cmap('viridis', len(ind_full_idx_sort))
-
-for i,j in enumerate(ind_full_idx_sort):
-    fig = plt.figure(figsize=(24, 16))
-    ax = plt.axes(projection='3d')
-    ax.set_xlim(400, 600)
-    ax.set_ylim(400, 150)
-    ax.set_zlim(50, 200)
-    ax.axis('off')
-    
-    for f in j:
-        somaIdx = np.where(np.array(morph_parent[f]) < 0)[0]
-        for p in range(len(morph_parent[f])):
-            if morph_parent[f][p] < 0:
-                pass
-            else:
-                morph_line = np.vstack((morph_coor[f][morph_id[f].index(morph_parent[f][p])], morph_coor[f][p]))
-                ax.plot3D(morph_line[:,0], morph_line[:,1], morph_line[:,2], color=cmap(i), lw=0.5)
-    # plt.savefig('./Drosfigures/morph_Dros_full_3D_1_c' + str(i+1) + '.png', dpi=300, bbox_inches='tight')
-    plt.close()
-
-
-#%% Morph 3D per cluster full
-
-cmap = cm.get_cmap('viridis', len(ind_full_idx_sort))
-
-fig = plt.figure(figsize=(24, 16))
-ax = plt.axes(projection='3d')
-ax.set_xlim(400, 600)
-ax.set_ylim(400, 150)
-ax.set_zlim(50, 200)
-ax.axis('off')
-
-for i,j in enumerate(ind_full_idx_sort):
-    for f in j:
-        somaIdx = np.where(np.array(morph_parent[f]) < 0)[0]
-        for p in range(len(morph_parent[f])):
-            if morph_parent[f][p] < 0:
-                pass
-            else:
-                morph_line = np.vstack((morph_coor[f][morph_id[f].index(morph_parent[f][p])], morph_coor[f][p]))
-                ax.plot3D(morph_line[:,0], morph_line[:,1], morph_line[:,2], color=cmap(i), lw=0.5)
-                
-# plt.savefig('./Drosfigures/morph_Dros_full_3D_full_1.png', dpi=300, bbox_inches='tight')
-plt.close()
-
-#%% Morph per neuron per cluster
+#%% Full PN reconstruction diagram per cluster
 
 cmap = cm.get_cmap('viridis', len(ind_full_idx_sort))
 
@@ -456,11 +368,11 @@ for i,j in enumerate(ind_full_idx_sort):
             else:
                 morph_line = np.vstack((morph_coor[f][morph_id[f].index(morph_parent[f][p])], morph_coor[f][p]))
                 plt.plot(morph_line[:,0], morph_line[:,2], color=cmap(i))
-        plt.savefig(os.path.join(dirpath, neuron_id[f]), dpi=300, bbox_inches='tight')
+        # plt.savefig(os.path.join(dirpath, neuron_id[f]), dpi=300, bbox_inches='tight')
         plt.close()
 
 
-#%% AL Fq
+#%% Read AL Fq
 
 PATH = r'./Dros_AL_fq'
 
@@ -478,7 +390,7 @@ for i,j in enumerate(fp_AL):
     fq_AL[i] = np.load(j)
 
     
-#%%
+#%% Distance calculation
 
 length_branch_flat_AL = [item for sublist in length_AL for item in sublist]
 
@@ -507,23 +419,11 @@ for i in range(len(fq_AL)):
 link = scipy.cluster.hierarchy.linkage(scipy.spatial.distance.squareform(fq_AL_dist), 
                                        method='complete', optimal_ordering=True)
 
-#%% Dynamic tree cut
+#%% Hybrid tree cutting
 
 from dynamicTreeCut import cutreeHybrid
 
 ind_AL = cutreeHybrid(link, scipy.spatial.distance.squareform(fq_AL_dist), minClusterSize=1)['labels']
-
-#%% Maximum silhouette
-
-silhoutte_AL = []
-
-for k in np.arange(2, 70):
-    sil_AL = scipy.cluster.hierarchy.fcluster(link, k, 'maxclust')
-    silhoutte_AL.append(sklearn.metrics.silhouette_score(fq_AL_dist, sil_AL, metric="precomputed"))
-
-ind_AL = scipy.cluster.hierarchy.fcluster(link, np.arange(2,70)[np.argmax(silhoutte_AL)], 'maxclust')
-
-#%%
 
 ind_AL_idx = []
 
@@ -538,7 +438,7 @@ for i,j in enumerate(ind_AL_idx):
 
 ind_AL_idx_sort = list(np.array(ind_AL_idx, dtype=object)[np.argsort(ind_AL_idx_rgy)[::-1]])
 
-#%%
+#%% PN F(q) curves per cluster at AL
 
 length_AL_ = []
 
@@ -570,18 +470,18 @@ for i,j in enumerate(ind_AL_idx_sort):
     line4 = 1/100*np.power(q_full, -1)
     line5 = 1e-3*np.power(q_full, -2/1)
     
-    # if i == 0:
-    #     plt.plot(q_full[130:157], line1[130:157], lw=1.5, color='tab:blue')
-    #     plt.plot(q_full[110:147], line2[110:147], lw=1.5, color='tab:red')
-    #     plt.plot(q_full[180:207], line3[180:207], lw=1.5, color='tab:purple')
-    #     plt.plot(q_full[220:270], line4[220:270], lw=1.5, color='k')
-    #     plt.plot(q_full[150:200], line5[200:250], lw=1.5, color='tab:green')
+    if i == 0:
+        plt.plot(q_full[130:157], line1[130:157], lw=1.5, color='tab:blue')
+        plt.plot(q_full[110:147], line2[110:147], lw=1.5, color='tab:red')
+        plt.plot(q_full[180:207], line3[180:207], lw=1.5, color='tab:purple')
+        plt.plot(q_full[220:270], line4[220:270], lw=1.5, color='k')
+        plt.plot(q_full[150:200], line5[200:250], lw=1.5, color='tab:green')
         
-    #     plt.text(0.03, 8e-1, r'$\nu = \dfrac{7}{16}$', fontsize=13, color='tab:blue')
-    #     plt.text(0.007, 1e-2, r'$\nu = \dfrac{1}{4}$', fontsize=13, color='tab:red')
-    #     plt.text(0.1, 2e-1, r'$\nu = 0.395$', fontsize=13, color='tab:purple')
-    #     plt.text(0.4, 1e-2, r'$\nu = 1$', fontsize=13, color='k')
-    #     plt.text(0.03, 1e-2, r'$\nu = \dfrac{1}{2}$', fontsize=13, color='tab:green')
+        plt.text(0.03, 8e-1, r'$\nu = \dfrac{7}{16}$', fontsize=13, color='tab:blue')
+        plt.text(0.007, 1e-2, r'$\nu = \dfrac{1}{4}$', fontsize=13, color='tab:red')
+        plt.text(0.1, 2e-1, r'$\nu = 0.395$', fontsize=13, color='tab:purple')
+        plt.text(0.4, 1e-2, r'$\nu = 1$', fontsize=13, color='k')
+        plt.text(0.03, 1e-2, r'$\nu = \dfrac{1}{2}$', fontsize=13, color='tab:green')
     
     plt.xscale('log')
     plt.yscale('log')
@@ -591,11 +491,11 @@ for i,j in enumerate(ind_AL_idx_sort):
     plt.xlabel('$q$', fontsize=18)
     plt.xticks(fontsize=18)
     plt.yticks(fontsize=18)
-    # plt.title("$C^{AL}_{" + str(i+1) + "}$", fontsize=15, pad=10)
+    plt.title("$C^{AL}_{" + str(i+1) + "}$", fontsize=15, pad=10)
     # plt.savefig('./Drosfigures/Fq_AL_c' + str(i+1) + '.pdf', dpi=300, bbox_inches='tight')
     plt.show()
 
-#%% AL plot cluster individual neurons
+#%% PN reconstruction diagram per cluster at AL 
 
 ALcoor_per_n_ = []
 
@@ -629,140 +529,7 @@ for i,j in enumerate(ind_AL_idx_sort):
         # plt.savefig(os.path.join(dirpath, AL_id[f]), dpi=300, bbox_inches='tight')
         plt.close()
 
-#%% AL plot cluster all neurons
-
-ALcoor_per_n_ = []
-
-for i in ALcoor_per_n:
-    if len(i) > 0:
-        ALcoor_per_n_.append(i)
-
-cmap = cm.get_cmap('viridis', len(ind_AL_idx_sort))
-
-for i,j in enumerate(ind_AL_idx_sort):
-    dirpath = './Drosfigures/AL_C' + str(i+1)
-    if not os.path.exists(dirpath):
-        os.makedirs(dirpath)
-        
-    fig = plt.figure(figsize=(24, 16))
-    ax = plt.axes(projection='3d')
-    ax.set_xlim(475, 625)
-    ax.set_ylim(450, 300)
-    ax.set_zlim(0, 150)
-    ax.axis('off')
-    
-    for f in j:
-        for p in ALcoor_per_n_[f]:
-            for b in range(len(p)-1):
-                morph_line = np.vstack((p[b], p[b+1]))
-                plt.plot(morph_line[:,0], morph_line[:,1], morph_line[:,2], color=cmap(i), lw=0.5)
-    plt.savefig(os.path.join(dirpath, 'AL_C' + str(i+1)), dpi=300, bbox_inches='tight')
-    plt.close()
-
-
-#%% AL plot all clusters
-
-ALcoor_per_n_ = []
-
-for i in ALcoor_per_n:
-    if len(i) > 0:
-        ALcoor_per_n_.append(i)
-
-cmap = cm.get_cmap('viridis', len(ind_AL_idx_sort))
-
-fig = plt.figure(figsize=(24, 16))
-ax = plt.axes(projection='3d')
-ax.set_xlim(475, 625)
-ax.set_ylim(450, 300)
-ax.set_zlim(0, 150)
-ax.axis('off')
-
-for i,j in enumerate(ind_AL_idx_sort):
-    for f in j:
-        for p in ALcoor_per_n_[f]:
-            for b in range(len(p)-1):
-                morph_line = np.vstack((p[b], p[b+1]))
-                plt.plot(morph_line[:,0], morph_line[:,1], morph_line[:,2], color=cmap(i), lw=0.5)
-                
-# plt.savefig('./Drosfigures/morph_Dros_AL_full_1.png', dpi=300, bbox_inches='tight')
-plt.close()
-
-#%% AL plot cluster all neurons in 2D + boundary
-
-from scipy.spatial import ConvexHull
-
-ALcoor_per_n_ = []
-
-for i in ALcoor_per_n:
-    if len(i) > 0:
-        ALcoor_per_n_.append(i)
-
-ALcoor_flat = [item for sublist in ALcoor for item in sublist]
-
-# ALcoor_flat = np.array(ALcoor_flat)[np.where(np.array(ALcoor_flat)[:,1] < 250)]
-# ALcoor_flat = np.array(ALcoor_flat)[np.where(np.array(ALcoor_flat)[:,1] > 190)]
-# ALcoor_flat = np.array(ALcoor_flat)[np.where(np.array(ALcoor_flat)[:,2] > 125)]
-
-hull_AL = ConvexHull(np.array(ALcoor_flat))
-
-tri_AL = []
-for i in range(len(hull_AL.simplices)):
-    tt = []
-    for j in range(len(hull_AL.simplices[i])):
-        tt.append(np.where(hull_AL.vertices == hull_AL.simplices[i][j])[0][0])
-    tri_AL.append(tuple(tt))
-
-cmap = cm.get_cmap('viridis', len(ind_AL_idx_sort))
-
-for i,j in enumerate(ind_AL_idx_sort):
-    dirpath = './Drosfigures/AL_C' + str(i+1)
-    if not os.path.exists(dirpath):
-        os.makedirs(dirpath)
-    
-    for z in range(2):
-        fig = plt.figure(figsize=(8, 8))
-        ax = plt.axes(projection='3d')
-        ax.set_box_aspect((1,1,1))
-        ax.set_xlim(475, 625)
-        ax.set_ylim(400, 250)
-        ax.set_zlim(0, 150)
-        ax.dist = 7
-        ax.axis('off')
-        
-        if z == 0:
-            hull_AL_test = ConvexHull(np.array(ALcoor_flat)[:,:2])
-            vert = np.append(hull_AL_test.vertices, hull_AL_test.vertices[0])
-            ax.plot(np.array(ALcoor_flat)[vert][:,0], 
-                    np.array(ALcoor_flat)[vert][:,1], 
-                    75,
-                    color='k',
-                    lw=3)
-        else:
-            hull_AL_test = ConvexHull(np.array(ALcoor_flat)[:,[0,2]])
-            vert = np.append(hull_AL_test.vertices, hull_AL_test.vertices[0])
-            ax.plot(np.array(ALcoor_flat)[vert][:,0], 
-                    np.repeat(325, len(vert)),
-                    np.array(ALcoor_flat)[vert][:,2], 
-                    color='k',
-                    lw=3)
-        
-        for f in j:
-            for p in ALcoor_per_n_[f]:
-                for b in range(len(p)-1):
-                    morph_line = np.vstack((p[b], p[b+1]))
-                    plt.plot(morph_line[:,0], morph_line[:,1], morph_line[:,2], color=cmap(i), lw=0.5)
-
-        if z == 0:
-            ax.view_init(elev=90., azim=-90)
-            plt.savefig(os.path.join(dirpath, 'AL_C' + str(i+1) + '_t_1'), dpi=300, bbox_inches='tight', transparent=True)
-        else:
-            ax.view_init(elev=0., azim=-90)
-            plt.savefig(os.path.join(dirpath, 'AL_C' + str(i+1) + '_f_1'), dpi=300, bbox_inches='tight', transparent=True)
-            
-        plt.close()
-
-
-#%% MB Fq
+#%% Read MB calyx Fq
 
 PATH = r'./Dros_MB_fq'
 
@@ -781,7 +548,7 @@ for i,j in enumerate(fp_MB):
     fq_MB[i] = np.load(j)
 
 
-#%%
+#%% Distance calculation
 
 MBcoor_per_n_flat = []
 length_MB_new = []
@@ -815,25 +582,11 @@ for i in range(len(fq_MB)):
 link = scipy.cluster.hierarchy.linkage(scipy.spatial.distance.squareform(fq_MB_dist), 
                                        method='complete', optimal_ordering=True)
 
-#%%
+#%% Hybrid tree cutting
 
 from dynamicTreeCut import cutreeHybrid
 
 ind_MB = cutreeHybrid(link, scipy.spatial.distance.squareform(fq_MB_dist), minClusterSize=1)['labels']
-
-
-#%%
-
-silhoutte_MB = []
-
-for k in np.arange(2, 70):
-    sil_MB = scipy.cluster.hierarchy.fcluster(link, k, 'maxclust')
-    silhoutte_MB.append(sklearn.metrics.silhouette_score(fq_MB_dist, sil_MB, metric="precomputed"))
-
-ind_MB = scipy.cluster.hierarchy.fcluster(link, np.arange(2,70)[np.argmax(silhoutte_MB)], 'maxclust')
-
-
-#%%
 
 ind_MB_idx = []
 
@@ -848,7 +601,7 @@ for i,j in enumerate(ind_MB_idx):
 
 ind_MB_idx_sort = list(np.array(ind_MB_idx, dtype=object)[np.argsort(ind_MB_idx_rgy)[::-1]])
 
-#%%
+#%% PN F(q) curves per cluster at MB calyx
 
 length_MB_ = []
 
@@ -880,18 +633,18 @@ for i,j in enumerate(ind_MB_idx_sort):
     line4 = 1/100*np.power(q_full, -1)
     line5 = 1e-3*np.power(q_full, -2/1)
     
-    # if i == 0:
-    #     plt.plot(q_full[130:157], line1[130:157], lw=1.5, color='tab:blue')
-    #     plt.plot(q_full[110:147], line2[110:147], lw=1.5, color='tab:red')
-    #     plt.plot(q_full[180:207], line3[180:207], lw=1.5, color='tab:purple')
-    #     plt.plot(q_full[220:270], line4[220:270], lw=1.5, color='k')
-    #     plt.plot(q_full[150:200], line5[200:250], lw=1.5, color='tab:green')
+    if i == 0:
+        plt.plot(q_full[130:157], line1[130:157], lw=1.5, color='tab:blue')
+        plt.plot(q_full[110:147], line2[110:147], lw=1.5, color='tab:red')
+        plt.plot(q_full[180:207], line3[180:207], lw=1.5, color='tab:purple')
+        plt.plot(q_full[220:270], line4[220:270], lw=1.5, color='k')
+        plt.plot(q_full[150:200], line5[200:250], lw=1.5, color='tab:green')
         
-    #     plt.text(0.03, 8e-1, r'$\nu = \dfrac{7}{16}$', fontsize=13, color='tab:blue')
-    #     plt.text(0.007, 1e-2, r'$\nu = \dfrac{1}{4}$', fontsize=13, color='tab:red')
-    #     plt.text(0.1, 2e-1, r'$\nu = 0.395$', fontsize=13, color='tab:purple')
-    #     plt.text(0.4, 1e-2, r'$\nu = 1$', fontsize=13, color='k')
-    #     plt.text(0.03, 1e-2, r'$\nu = \dfrac{1}{2}$', fontsize=13, color='tab:green')
+        plt.text(0.03, 8e-1, r'$\nu = \dfrac{7}{16}$', fontsize=13, color='tab:blue')
+        plt.text(0.007, 1e-2, r'$\nu = \dfrac{1}{4}$', fontsize=13, color='tab:red')
+        plt.text(0.1, 2e-1, r'$\nu = 0.395$', fontsize=13, color='tab:purple')
+        plt.text(0.4, 1e-2, r'$\nu = 1$', fontsize=13, color='k')
+        plt.text(0.03, 1e-2, r'$\nu = \dfrac{1}{2}$', fontsize=13, color='tab:green')
     
     plt.xscale('log')
     plt.yscale('log')
@@ -901,11 +654,11 @@ for i,j in enumerate(ind_MB_idx_sort):
     plt.xlabel('$q$', fontsize=18)
     plt.xticks(fontsize=18)
     plt.yticks(fontsize=18)
-    # plt.title("$C^{MB}_{" + str(i+1) + "}$", fontsize=15, pad=10)
+    plt.title("$C^{MB}_{" + str(i+1) + "}$", fontsize=15, pad=10)
     # plt.savefig('./Drosfigures/Fq_MB_c' + str(i+1) + '.pdf', dpi=300, bbox_inches='tight')
     plt.show()
 
-#%% MB plot cluster individual neurons
+#%% PN reconstruction diagram per cluster at MB calyx
 
 MBcoor_per_n_ = []
 
@@ -941,140 +694,7 @@ for i,j in enumerate(ind_MB_idx_sort):
         # plt.savefig(os.path.join(dirpath, MB_id[f]), dpi=300, bbox_inches='tight')
         plt.close()
 
-#%% MB plot cluster all neurons
-
-MBcoor_per_n_ = []
-
-for i in MBcoor_per_n:
-    if len(i) > 0:
-        MBcoor_per_n_.append(i)
-
-cmap = cm.get_cmap('viridis', len(ind_MB_idx_sort))
-
-for i,j in enumerate(ind_MB_idx_sort):
-    dirpath = './Drosfigures/MB_C' + str(i+1)
-    if not os.path.exists(dirpath):
-        os.makedirs(dirpath)
-        
-    fig = plt.figure(figsize=(24, 16))
-    ax = plt.axes(projection='3d')
-    ax.set_xlim(500, 650)
-    ax.set_ylim(400, 250)
-    ax.set_zlim(125, 275)
-    ax.axis('off')
-    
-    for f in j:
-        for p in MBcoor_per_n_[f]:
-            for b in range(len(p)-1):
-                morph_line = np.vstack((p[b], p[b+1]))
-                plt.plot(morph_line[:,0], morph_line[:,1], morph_line[:,2], color=cmap(i), lw=0.5)
-    plt.savefig(os.path.join(dirpath, 'MB_C' + str(i+1)), dpi=300, bbox_inches='tight')
-    plt.close()
-
-
-#%% MB plot all clusters
-
-MBcoor_per_n_ = []
-
-for i in MBcoor_per_n:
-    if len(i) > 0:
-        MBcoor_per_n_.append(i)
-
-cmap = cm.get_cmap('viridis', len(ind_MB_idx_sort))
-
-fig = plt.figure(figsize=(24, 16))
-ax = plt.axes(projection='3d')
-ax.set_xlim(500, 650)
-ax.set_ylim(400, 250)
-ax.set_zlim(125, 275)
-ax.axis('off')
-
-for i,j in enumerate(ind_MB_idx_sort):
-    for f in j:
-        for p in MBcoor_per_n_[f]:
-            for b in range(len(p)-1):
-                morph_line = np.vstack((p[b], p[b+1]))
-                plt.plot(morph_line[:,0], morph_line[:,1], morph_line[:,2], color=cmap(i), lw=0.5)
-                
-# plt.savefig('./Drosfigures/morph_Dros_MB_full_1.png', dpi=300, bbox_inches='tight')
-plt.close()
-
-#%% MB plot cluster all neurons in 2D + boundary
-
-from scipy.spatial import ConvexHull
-
-MBcoor_per_n_ = []
-
-for i in MBcoor_per_n:
-    if len(i) > 0:
-        MBcoor_per_n_.append(i)
-
-MBcoor_flat = [item for sublist in MBcoor for item in sublist]
-
-MBcoor_flat = np.array(MBcoor_flat)[np.where(np.array(MBcoor_flat)[:,1] < 250)]
-MBcoor_flat = np.array(MBcoor_flat)[np.where(np.array(MBcoor_flat)[:,1] > 190)]
-# MBcoor_flat = np.array(MBcoor_flat)[np.where(np.array(MBcoor_flat)[:,2] > 125)]
-
-hull_MB = ConvexHull(np.array(MBcoor_flat))
-
-tri_MB = []
-for i in range(len(hull_MB.simplices)):
-    tt = []
-    for j in range(len(hull_MB.simplices[i])):
-        tt.append(np.where(hull_MB.vertices == hull_MB.simplices[i][j])[0][0])
-    tri_MB.append(tuple(tt))
-
-cmap = cm.get_cmap('viridis', len(ind_MB_idx_sort))
-
-for i,j in enumerate(ind_MB_idx_sort):
-    dirpath = './Drosfigures/MB_C' + str(i+1)
-    if not os.path.exists(dirpath):
-        os.makedirs(dirpath)
-    
-    for z in range(2):
-        fig = plt.figure(figsize=(8, 8))
-        ax = plt.axes(projection='3d')
-        ax.set_box_aspect((1,1,1))
-        ax.set_xlim(450, 600)
-        ax.set_ylim(300, 150)
-        ax.set_zlim(75, 225)
-        ax.dist = 7
-        ax.axis('off')
-        
-        if z == 0:
-            hull_MB_test = ConvexHull(np.array(MBcoor_flat)[:,:2])
-            vert = np.append(hull_MB_test.vertices, hull_MB_test.vertices[0])
-            ax.plot(np.array(MBcoor_flat)[vert][:,0], 
-                    np.array(MBcoor_flat)[vert][:,1], 
-                    150,
-                    color='k',
-                    lw=3)
-        else:
-            hull_MB_test = ConvexHull(np.array(MBcoor_flat)[:,[0,2]])
-            vert = np.append(hull_MB_test.vertices, hull_MB_test.vertices[0])
-            ax.plot(np.array(MBcoor_flat)[vert][:,0], 
-                    np.repeat(225, len(vert)),
-                    np.array(MBcoor_flat)[vert][:,2], 
-                    color='k',
-                    lw=3)
-        
-        for f in j:
-            for p in MBcoor_per_n_[f]:
-                for b in range(len(p)-1):
-                    morph_line = np.vstack((p[b], p[b+1]))
-                    plt.plot(morph_line[:,0], morph_line[:,1], morph_line[:,2], color=cmap(i), lw=0.5)
-
-        if z == 0:
-            ax.view_init(elev=90., azim=-90)
-            plt.savefig(os.path.join(dirpath, 'MB_C' + str(i+1) + '_t_1'), dpi=300, bbox_inches='tight', transparent=True)
-        else:
-            ax.view_init(elev=0., azim=-90)
-            plt.savefig(os.path.join(dirpath, 'MB_C' + str(i+1) + '_f_1'), dpi=300, bbox_inches='tight', transparent=True)
-            
-        plt.close()
-    
-    
-#%% LH Fq
+#%% Read LH Fq
 
 PATH = r'./Dros_LH_fq'
 
@@ -1090,7 +710,7 @@ for i,j in enumerate(fp_LH):
     fq_LH[i] = np.load(j)
 
     
-#%%
+#%% Distance calculation
 
 length_branch_flat_LH = [item for sublist in length_LH for item in sublist]
 
@@ -1119,23 +739,11 @@ for i in range(len(fq_LH)):
 link = scipy.cluster.hierarchy.linkage(scipy.spatial.distance.squareform(fq_LH_dist), 
                                        method='centroid', optimal_ordering=True)
 
-#%%
+#%% Hybrid tree cutting
 
 from dynamicTreeCut import cutreeHybrid
 
 ind_LH = cutreeHybrid(link, scipy.spatial.distance.squareform(fq_LH_dist), minClusterSize=1)['labels']
-
-#%%
-
-silhoutte_LH = []
-
-for k in np.arange(2, 70):
-    sil_LH = scipy.cluster.hierarchy.fcluster(link, k, 'maxclust')
-    silhoutte_LH.append(sklearn.metrics.silhouette_score(fq_LH_dist, sil_LH, metric="precomputed"))
-
-ind_LH = scipy.cluster.hierarchy.fcluster(link, np.arange(2, 70)[np.argmax(silhoutte_LH)], 'maxclust')
-
-#%%
 
 ind_LH_idx = []
 
@@ -1150,7 +758,7 @@ for i,j in enumerate(ind_LH_idx):
 
 ind_LH_idx_sort = list(np.array(ind_LH_idx, dtype=object)[np.argsort(ind_LH_idx_rgy)[::-1]])
 
-#%%
+#%% PN F(q) curves per cluster at LH
 
 length_LH_ = []
 
@@ -1182,18 +790,18 @@ for i,j in enumerate(ind_LH_idx_sort):
     line4 = 1/100*np.power(q_full, -1)
     line5 = 1e-3*np.power(q_full, -2/1)
     
-    # if i == 0:
-    #     plt.plot(q_full[130:157], line1[130:157], lw=1.5, color='tab:blue')
-    #     plt.plot(q_full[110:147], line2[110:147], lw=1.5, color='tab:red')
-    #     plt.plot(q_full[180:207], line3[180:207], lw=1.5, color='tab:purple')
-    #     plt.plot(q_full[220:270], line4[220:270], lw=1.5, color='k')
-    #     plt.plot(q_full[150:200], line5[200:250], lw=1.5, color='tab:green')
+    if i == 0:
+        plt.plot(q_full[130:157], line1[130:157], lw=1.5, color='tab:blue')
+        plt.plot(q_full[110:147], line2[110:147], lw=1.5, color='tab:red')
+        plt.plot(q_full[180:207], line3[180:207], lw=1.5, color='tab:purple')
+        plt.plot(q_full[220:270], line4[220:270], lw=1.5, color='k')
+        plt.plot(q_full[150:200], line5[200:250], lw=1.5, color='tab:green')
         
-    #     plt.text(0.03, 8e-1, r'$\nu = \dfrac{7}{16}$', fontsize=13, color='tab:blue')
-    #     plt.text(0.007, 1e-2, r'$\nu = \dfrac{1}{4}$', fontsize=13, color='tab:red')
-    #     plt.text(0.1, 2e-1, r'$\nu = 0.395$', fontsize=13, color='tab:purple')
-    #     plt.text(0.4, 1e-2, r'$\nu = 1$', fontsize=13, color='k')
-    #     plt.text(0.03, 1e-2, r'$\nu = \dfrac{1}{2}$', fontsize=13, color='tab:green')
+        plt.text(0.03, 8e-1, r'$\nu = \dfrac{7}{16}$', fontsize=13, color='tab:blue')
+        plt.text(0.007, 1e-2, r'$\nu = \dfrac{1}{4}$', fontsize=13, color='tab:red')
+        plt.text(0.1, 2e-1, r'$\nu = 0.395$', fontsize=13, color='tab:purple')
+        plt.text(0.4, 1e-2, r'$\nu = 1$', fontsize=13, color='k')
+        plt.text(0.03, 1e-2, r'$\nu = \dfrac{1}{2}$', fontsize=13, color='tab:green')
     
     plt.xscale('log')
     plt.yscale('log')
@@ -1203,11 +811,11 @@ for i,j in enumerate(ind_LH_idx_sort):
     plt.xlabel('$q$', fontsize=18)
     plt.xticks(fontsize=18)
     plt.yticks(fontsize=18)
-    # plt.title("$C^{LH}_{" + str(i+1) + "}$", fontsize=15, pad=10)
+    plt.title("$C^{LH}_{" + str(i+1) + "}$", fontsize=15, pad=10)
     # plt.savefig('./Drosfigures/Fq_LH_c' + str(i+1) + '.pdf', dpi=300, bbox_inches='tight')
     plt.show()
 
-#%% LH plot cluster individual neurons
+#%% PN reconstruction diagram per cluster at LH
 
 LHcoor_per_n_ = []
 
@@ -1241,144 +849,10 @@ for i,j in enumerate(ind_LH_idx_sort):
         # plt.savefig(os.path.join(dirpath, LH_id[f]), dpi=300, bbox_inches='tight')
         plt.close()
 
-#%% LH plot cluster all neurons
-
-LHcoor_per_n_ = []
-
-for i in LHcoor_per_n:
-    if len(i) > 0:
-        LHcoor_per_n_.append(i)
-
-cmap = cm.get_cmap('viridis', len(ind_LH_idx_sort))
-
-for i,j in enumerate(ind_LH_idx_sort):
-    dirpath = './Drosfigures/LH_C' + str(i+1)
-    if not os.path.exists(dirpath):
-        os.makedirs(dirpath)
-        
-    fig = plt.figure(figsize=(24, 16))
-    ax = plt.axes(projection='3d')
-    ax.set_xlim(400, 550)
-    ax.set_ylim(400, 250)
-    ax.set_zlim(125, 275)
-    ax.axis('off')
-    
-    for f in j:
-        for p in LHcoor_per_n_[f]:
-            for b in range(len(p)-1):
-                morph_line = np.vstack((p[b], p[b+1]))
-                plt.plot(morph_line[:,0], morph_line[:,1], morph_line[:,2], color=cmap(i), lw=0.5)
-    plt.savefig(os.path.join(dirpath, 'LH_C' + str(i+1)), dpi=300, bbox_inches='tight')
-    plt.close()
-
-
-#%% LH plot all clusters
-
-LHcoor_per_n_ = []
-
-for i in LHcoor_per_n:
-    if len(i) > 0:
-        LHcoor_per_n_.append(i)
-
-cmap = cm.get_cmap('viridis', len(ind_LH_idx_sort))
-
-fig = plt.figure(figsize=(24, 16))
-ax = plt.axes(projection='3d')
-ax.set_xlim(400, 550)
-ax.set_ylim(400, 250)
-ax.set_zlim(125, 275)
-ax.axis('off')
-
-for i,j in enumerate(ind_LH_idx_sort):
-    for f in j:
-        for p in LHcoor_per_n_[f]:
-            for b in range(len(p)-1):
-                morph_line = np.vstack((p[b], p[b+1]))
-                plt.plot(morph_line[:,0], morph_line[:,1], morph_line[:,2], color=cmap(i), lw=0.5)
-                
-plt.savefig('./Drosfigures/morph_Dros_LH_full_1.png', dpi=300, bbox_inches='tight')
-plt.close()
-
-#%% LH plot cluster all neurons in 2D + boundary
-
-from scipy.spatial import ConvexHull
-
-LHcoor_per_n_ = []
-
-for i in LHcoor_per_n:
-    if len(i) > 0:
-        LHcoor_per_n_.append(i)
-
-LHcoor_flat = [item for sublist in LHcoor for item in sublist]
-
-LHcoor_flat = np.array(LHcoor_flat)[np.where(np.array(LHcoor_flat)[:,1] < 255)]
-LHcoor_flat = np.array(LHcoor_flat)[np.where(np.array(LHcoor_flat)[:,1] > 185)]
-LHcoor_flat = np.array(LHcoor_flat)[np.where(np.array(LHcoor_flat)[:,2] > 125)]
-
-hull_LH = ConvexHull(np.array(LHcoor_flat))
-
-tri_LH = []
-for i in range(len(hull_LH.simplices)):
-    tt = []
-    for j in range(len(hull_LH.simplices[i])):
-        tt.append(np.where(hull_LH.vertices == hull_LH.simplices[i][j])[0][0])
-    tri_LH.append(tuple(tt))
-
-cmap = cm.get_cmap('viridis', len(ind_LH_idx_sort))
-
-for i,j in enumerate(ind_LH_idx_sort):
-    dirpath = './Drosfigures/LH_C' + str(i+1)
-    if not os.path.exists(dirpath):
-        os.makedirs(dirpath)
-    
-    for z in range(2):
-        fig = plt.figure(figsize=(8, 8))
-        ax = plt.axes(projection='3d')
-        ax.set_box_aspect((1,1,1))
-        ax.set_xlim(350, 500)
-        ax.set_ylim(300, 150)
-        ax.set_zlim(75, 225)
-        ax.dist = 7
-        ax.axis('off')
-        
-        if z == 0:
-            hull_LH_test = ConvexHull(np.array(LHcoor_flat)[:,:2])
-            vert = np.append(hull_LH_test.vertices, hull_LH_test.vertices[0])
-            ax.plot(np.array(LHcoor_flat)[vert][:,0], 
-                    np.array(LHcoor_flat)[vert][:,1], 
-                    150,
-                    color='k',
-                    lw=3)
-        else:
-            hull_LH_test = ConvexHull(np.array(LHcoor_flat)[:,[0,2]])
-            vert = np.append(hull_LH_test.vertices, hull_LH_test.vertices[0])
-            ax.plot(np.array(LHcoor_flat)[vert][:,0], 
-                    np.repeat(225, len(vert)),
-                    np.array(LHcoor_flat)[vert][:,2], 
-                    color='k',
-                    lw=3)
-        
-        for f in j:
-            for p in LHcoor_per_n_[f]:
-                for b in range(len(p)-1):
-                    morph_line = np.vstack((p[b], p[b+1]))
-                    plt.plot(morph_line[:,0], morph_line[:,1], morph_line[:,2], color=cmap(i), lw=0.5)
-
-        if z == 0:
-            ax.view_init(elev=90., azim=-90)
-            plt.savefig(os.path.join(dirpath, 'LH_C' + str(i+1) + '_t_1'), dpi=300, bbox_inches='tight', transparent=True)
-        else:
-            ax.view_init(elev=0., azim=-90)
-            plt.savefig(os.path.join(dirpath, 'LH_C' + str(i+1) + '_f_1'), dpi=300, bbox_inches='tight', transparent=True)
-            
-        plt.close()
-
-
-#%% metric testing full
+#%% Metric testing full PN
 
 branch_length_average_full = 2.789401932780958
-
-rgymean_full = 2*72.07108928773508
+rgymean_full = 144.14217857547015
 
 i1 = np.argmin(np.abs(q_full - 2*np.pi/rgymean_full))
 i2 = np.argmin(np.abs(q_full - 2*np.pi/branch_length_average_full))+1
@@ -1429,7 +903,7 @@ for n in range(4):
     
     ind_full_idx_sort_all.append(ind_full_idx_sort)
     
-#%%
+#%% Metric testing diagram full PN
 
 import matplotlib.ticker as ticker
 from mpl_toolkits.axisartist.parasite_axes import SubplotHost
@@ -1463,7 +937,6 @@ full_ind_chg[3][full_ind_chg[3] == 9] = 8
 full_ind_chg[3][full_ind_chg[3] == 3] = 9
 full_ind_chg[3][full_ind_chg[3] == 4] = 3
 full_ind_chg[3][full_ind_chg[3] == 9] = 4
-
     
 fig = plt.figure(figsize=(10,1))
 ax1 = SubplotHost(fig, 111)
@@ -1488,7 +961,7 @@ ax3.axis["left"].minor_ticklabels.set(fontsize=6, rotation_mode='default')
 # plt.savefig('./Drosfigures/full_metric_test_1.svg', dpi=300, bbox_inches='tight')
 plt.show()
 
-#%% metric testing AL
+#%% Metric testing diagram PN at AL
 
 i1 = np.argmin(np.abs(q_full - 2*np.pi/rgymean_AL))
 i2 = np.argmin(np.abs(q_full - 2*np.pi/branch_length_average_AL))+1
@@ -1540,7 +1013,7 @@ for n in range(4):
     ind_AL_idx_sort_all.append(ind_AL_idx_sort)
     
     
-#%%
+#%% Metric testing diagram PN at AL
 
 import matplotlib.ticker as ticker
 from mpl_toolkits.axisartist.parasite_axes import SubplotHost
@@ -1597,13 +1070,12 @@ ax3.set_yticks(np.arange(5))
 ax3.invert_yaxis()
 ax3.yaxis.set_major_formatter(ticker.NullFormatter())
 ax3.yaxis.set_minor_locator(ticker.FixedLocator((np.arange(5) + 0.5)))
-# ax2.xaxis.set_minor_formatter(ticker.FixedFormatter(glo_list_cluster))
 ax3.yaxis.set_minor_formatter(ticker.FixedFormatter(['Euclidean', 'Manhattan', 'Cosine', 'Frechet']))
 ax3.axis["left"].minor_ticklabels.set(fontsize=6, rotation_mode='default')
 # plt.savefig('./Drosfigures/AL_metric_test_1.svg', dpi=300, bbox_inches='tight')
 plt.show()
 
-#%% metric testing MB
+#%% Metric testing PN at MB calyx
 
 i1 = np.argmin(np.abs(q_full - 2*np.pi/rgymean_MB))
 i2 = np.argmin(np.abs(q_full - 2*np.pi/branch_length_average_MB))+1
@@ -1655,7 +1127,7 @@ for n in range(4):
     ind_MB_idx_sort_all.append(ind_MB_idx_sort)
     
     
-#%%
+#%% Metric testing diagram PN at MB calyx
 
 import matplotlib.ticker as ticker
 from mpl_toolkits.axisartist.parasite_axes import SubplotHost
@@ -1712,14 +1184,13 @@ ax3.set_yticks(np.arange(5))
 ax3.invert_yaxis()
 ax3.yaxis.set_major_formatter(ticker.NullFormatter())
 ax3.yaxis.set_minor_locator(ticker.FixedLocator((np.arange(5) + 0.5)))
-# ax2.xaxis.set_minor_formatter(ticker.FixedFormatter(glo_list_cluster))
 ax3.yaxis.set_minor_formatter(ticker.FixedFormatter(['Euclidean', 'Manhattan', 'Cosine', 'Frechet']))
 ax3.axis["left"].minor_ticklabels.set(fontsize=6, rotation_mode='default')
 # plt.savefig('./Drosfigures/MB_metric_test_1.svg', dpi=300, bbox_inches='tight')
 plt.show()
 
 
-#%% metric testing LH
+#%% Metric testing PN at LH
 
 i1 = np.argmin(np.abs(q_full - 2*np.pi/rgymean_LH))
 i2 = np.argmin(np.abs(q_full - 2*np.pi/branch_length_average_LH))+1
@@ -1771,7 +1242,7 @@ for n in range(4):
     ind_LH_idx_sort_all.append(ind_LH_idx_sort)
     
     
-#%%
+#%% Metric testing diagram PN at LH
 
 import matplotlib.ticker as ticker
 from mpl_toolkits.axisartist.parasite_axes import SubplotHost
@@ -1820,7 +1291,6 @@ ax3.set_yticks(np.arange(5))
 ax3.invert_yaxis()
 ax3.yaxis.set_major_formatter(ticker.NullFormatter())
 ax3.yaxis.set_minor_locator(ticker.FixedLocator((np.arange(5) + 0.5)))
-# ax2.xaxis.set_minor_formatter(ticker.FixedFormatter(glo_list_cluster))
 ax3.yaxis.set_minor_formatter(ticker.FixedFormatter(['Euclidean', 'Manhattan', 'Cosine', 'Frechet']))
 ax3.axis["left"].minor_ticklabels.set(fontsize=6, rotation_mode='default')
 # plt.savefig('./Drosfigures/LH_metric_test_1.svg', dpi=300, bbox_inches='tight')

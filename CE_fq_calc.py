@@ -37,8 +37,6 @@ def formfactor(args):
         Pq_CE[q] = np.divide(np.divide(2*np.sum(np.sin(qrvec)/qrvec), lenucoor), lenucoor) + 1/lenucoor
     
     np.save(r'./CE_pq/' + os.path.basename(args)[:-4] + '.npy', Pq_CE)
-    
-    #return Pq_CE
 
 if __name__ == '__main__': 
     PATH = r'./CE_swc'
@@ -47,6 +45,8 @@ if __name__ == '__main__':
     fp = [os.path.join(PATH, f) for f in fp]
     fp.sort()
     
+	# multiprocessing 
+	# use 30 threads and refresh the worker after 10 tasks
     pool = mp.Pool(30, maxtasksperchild=10)
     
     t1 = time.time()
@@ -64,7 +64,4 @@ if __name__ == '__main__':
     
     time.sleep(5)
     
-    # np.save(r'./Pq_CE.npy', results)
-
-
 

@@ -58,7 +58,7 @@ def radiusOfGyration(morph_coor, morph_dia):
     
     return (rGy, cML)
 
-#%% Read .swc files
+#%% Read reconstructions
 
 PATH = r'./cell_types'
 
@@ -169,7 +169,7 @@ d2df = [item for sublist in d2d for item in sublist]
 #%% Distance calculation
 
 branch_length_average = 40.99789638178139
-rgymean = 2*147.66540460265043
+rgymean = 295.33080920530085
 
 i1 = np.argmin(np.abs(q - 2*np.pi/rgymean))
 i2 = np.argmin(np.abs(q - 2*np.pi/branch_length_average))+1
@@ -190,15 +190,6 @@ for i in range(len(fp)):
         num_data[:,1] = np.log10(fq[j,i1:i2])
         # L2
         fq_dist[i][j] = np.linalg.norm(np.log10(fq[i,i1:i2])-np.log10(fq[j,i1:i2]))
-        # L1
-        # fq_dist[i][j] = np.linalg.norm((np.log10(fq[i,i1:i2])-np.log10(fq[j,i1:i2])), ord=1)
-        # cosine
-        # fq_dist[i][j] = scipy.spatial.distance.cosine(np.log10(fq[i,i1:i2]), np.log10(fq[j,i1:i2]))
-        # Frechet
-        # fq_dist[i][j] = sm.frechet_dist(exp_data[:,1], num_data[:,1])
-        # PCM
-        # fq_dist[i][j] = sm.pcm(exp_data, num_data)
-
     
 aspiny_idx = np.where(dendrite_type != 'spiny')[0]
 
@@ -212,14 +203,6 @@ for i in range(N_aspiny):
         num_data[:,1] = np.log10(fq[aspiny_idx[j],i1:i2])
         # L2
         fq_dist_aspiny[i][j] = np.linalg.norm(np.log10(fq[aspiny_idx[i],i1:i2])-np.log10(fq[aspiny_idx[j],i1:i2]))
-        # L1
-        # fq_dist[i][j] = np.linalg.norm((np.log10(fq[aspiny_idx[i],i1:i2])-np.log10(fq[aspiny_idx[j],i1:i2])), ord=1)
-        # cosine
-        # fq_dist[i][j] = scipy.spatial.distance.cosine(np.log10(fq[aspiny_idx[i],i1:i2]), np.log10(fq[aspiny_idx[j],i1:i2]))
-        # Frechet
-        # fq_dist[i][j] = sm.frechet_dist(exp_data[:,1], num_data[:,1])
-        # PCM
-        # fq_dist[i][j] = sm.pcm(exp_data, num_data)
 
 spiny_idx = np.where(dendrite_type == 'spiny')[0]
 
@@ -233,14 +216,6 @@ for i in range(N_spiny):
         num_data[:,1] = np.log10(fq[spiny_idx[j],i1:i2])
         # L2
         fq_dist_spiny[i][j] = np.linalg.norm(np.log10(fq[spiny_idx[i],i1:i2])-np.log10(fq[spiny_idx[j],i1:i2]))
-        # L1
-        # fq_dist[i][j] = np.linalg.norm((np.log10(fq[spiny_idx[i],i1:i2])-np.log10(fq[spiny_idx[j],i1:i2])), ord=1)
-        # cosine
-        # fq_dist[i][j] = scipy.spatial.distance.cosine(np.log10(fq[spiny_idx[i],i1:i2]), np.log10(fq[spiny_idx[j],i1:i2]))
-        # Frechet
-        # fq_dist[i][j] = sm.frechet_dist(exp_data[:,1], num_data[:,1])
-        # PCM
-        # fq_dist[i][j] = sm.pcm(exp_data, num_data)
 
 link = scipy.cluster.hierarchy.linkage(scipy.spatial.distance.squareform(fq_dist), 
                                        method='complete', optimal_ordering=True)
@@ -250,66 +225,6 @@ link_aspiny = scipy.cluster.hierarchy.linkage(scipy.spatial.distance.squareform(
 
 link_spiny = scipy.cluster.hierarchy.linkage(scipy.spatial.distance.squareform(fq_dist_spiny), 
                                        method='complete', optimal_ordering=True)
-
-
-#%% Raw F(q) curves and dendrograms
-
-fig = plt.figure(figsize=(6,4))
-plt.plot(q, fq.T)
-plt.vlines(2*np.pi/branch_length_average, 1e-5, 10, color='k', ls='dashed')
-plt.vlines(2*np.pi/rgymean, 1e-5, 10, color='k', ls='solid')
-plt.xscale('log')
-plt.yscale('log')
-plt.xlim(1e-3, 1)
-plt.ylim(4e-5, 3)
-plt.ylabel('$F(q)$', fontsize=13)
-plt.xlabel('$q$', fontsize=13)
-plt.show()
-
-fig, ax = plt.subplots(figsize=(60, 5))
-R_n = scipy.cluster.hierarchy.dendrogram(link,
-                                        orientation='top',
-                                        labels=neuron_id,
-                                        distance_sort='ascending',
-                                        show_leaf_counts=False,
-                                        leaf_font_size=6,
-                                        color_threshold=1.5)
-ax.set_yticks([])
-ax.spines["top"].set_visible(False)
-ax.spines["right"].set_visible(False)
-ax.spines["bottom"].set_visible(False)
-ax.spines["left"].set_visible(False)
-plt.show()
-
-fig, ax = plt.subplots(figsize=(30, 5))
-R_n_aspiny = scipy.cluster.hierarchy.dendrogram(link_aspiny,
-                                        orientation='top',
-                                        labels=neuron_id[aspiny_idx],
-                                        distance_sort='ascending',
-                                        show_leaf_counts=False,
-                                        leaf_font_size=6,
-                                        color_threshold=1.5)
-ax.set_yticks([])
-ax.spines["top"].set_visible(False)
-ax.spines["right"].set_visible(False)
-ax.spines["bottom"].set_visible(False)
-ax.spines["left"].set_visible(False)
-plt.show()
-
-fig, ax = plt.subplots(figsize=(30, 5))
-R_n_spiny = scipy.cluster.hierarchy.dendrogram(link_spiny,
-                                        orientation='top',
-                                        labels=neuron_id[spiny_idx],
-                                        distance_sort='ascending',
-                                        show_leaf_counts=False,
-                                        leaf_font_size=6,
-                                        color_threshold=1.5)
-ax.set_yticks([])
-ax.spines["top"].set_visible(False)
-ax.spines["right"].set_visible(False)
-ax.spines["bottom"].set_visible(False)
-ax.spines["left"].set_visible(False)
-plt.show()
 
 #%% Hybrid tree cutting
 
@@ -582,92 +497,6 @@ for i in range(len(branch_coor)):
     branch_coor_rot.append(branch_coor_rot_t)
     morph_coor_rot.append(rot.apply(morph_coor[i]))
     
-
-#%% Spiny and aspiny neuron reconstruction diagram
-
-max_range_list = []
-
-for i in range(len(morph_coor_rot)):
-    Y = np.array(morph_coor_rot[i])[:,1]
-    Z = np.array(morph_coor_rot[i])[:,2]
-    max_range = np.array([Y.max()-Y.min(), Z.max()-Z.min()]).max()
-    max_range_list.append(max_range)
-
-max_range = np.max(max_range_list)
-
-row = len(ind2_spiny_idx_sort)
-col = 10
-
-N_cluster = len(np.unique(ind2_spiny))
-
-cmap = cm.get_cmap('viridis', N_cluster)
-
-fig, ax = plt.subplots(row, col, figsize=(3*col,3*row))
-
-for i in range(row):
-    for j in range(col):
-        ax[i][j].axis('off')
-
-for i,c in enumerate(np.unique(ind2_spiny)):
-    for n,j in enumerate(spiny_idx[np.where(ind2_spiny == c)][:col]):
-        tararr = np.array(morph_coor_rot[j])
-        somaIdx = np.where(np.array(morph_parent[j]) < 0)[0]
-        for p in range(len(morph_parent[j])):
-            if morph_parent[j][p] < 0:
-                pass
-            else:
-                morph_line = np.vstack((morph_coor_rot[j]
-                                        [morph_id[j].index(morph_parent[j][p])], morph_coor_rot[j][p]))
-                ax[i][n].plot(morph_line[:,1], morph_line[:,2], color=cmap(i), lw=1)
-        
-        Y = np.array(morph_coor_rot[j])[:,1]
-        Z = np.array(morph_coor_rot[j])[:,2]
-        
-        ax[i][n].set_title(neuron_id[j], fontsize=15)
-        ax[i][n].set_xlim((0.5*(Y.max()+Y.min())-0.5*max_range, 0.5*(Y.max()+Y.min())+0.5*max_range))
-        ax[i][n].set_ylim((0.5*(Z.max()+Z.min())-0.5*max_range, 0.5*(Z.max()+Z.min())+0.5*max_range))
-
-plt.tight_layout()
-# plt.savefig('./spiny_poster_zero_naive2.png', dpi=300, bbox_inches='tight')
-plt.close()
-
-
-row = len(ind2_aspiny_idx_sort)
-col = 10
-
-N_cluster = len(np.unique(ind2_aspiny))
-
-cmap = cm.get_cmap('viridis', N_cluster)
-
-fig, ax = plt.subplots(row, col, figsize=(3*col,3*row))
-
-for i in range(row):
-    for j in range(col):
-        ax[i][j].axis('off')
-
-for i,c in enumerate(np.unique(ind2_aspiny)):
-    for n,j in enumerate(aspiny_idx[np.where(ind2_aspiny == c)][:col]):
-        tararr = np.array(morph_coor_rot[j])
-        somaIdx = np.where(np.array(morph_parent[j]) < 0)[0]
-        for p in range(len(morph_parent[j])):
-            if morph_parent[j][p] < 0:
-                pass
-            else:
-                morph_line = np.vstack((morph_coor_rot[j]
-                                        [morph_id[j].index(morph_parent[j][p])], morph_coor_rot[j][p]))
-                ax[i][n].plot(morph_line[:,1], morph_line[:,2], color=cmap(i), lw=1)
-        
-        Y = np.array(morph_coor_rot[j])[:,1]
-        Z = np.array(morph_coor_rot[j])[:,2]
-        
-        ax[i][n].set_title(neuron_id[j], fontsize=15)
-        ax[i][n].set_xlim((0.5*(Y.max()+Y.min())-0.5*max_range, 0.5*(Y.max()+Y.min())+0.5*max_range))
-        ax[i][n].set_ylim((0.5*(Z.max()+Z.min())-0.5*max_range, 0.5*(Z.max()+Z.min())+0.5*max_range))
-
-plt.tight_layout()
-# plt.savefig('./aspiny_poster_zero_naive2.png', dpi=300, bbox_inches='tight')
-plt.close()
-
 #%% Spiny and aspiny neuron reconstruction diagram per cluster
 
 max_range_list = []
@@ -808,88 +637,6 @@ for i in range(len(m_nid_spiny)):
             m_c_spiny.append(m_type_spiny[i])
     m_obs_spiny.append(m_obs_spiny_temp)
 
-
-#%% etype Comparison with Gouwens et al.
-
-e_type_aspiny = np.array(['Inh_1', 'Inh_2', 'Inh_3', 'Inh_4', 'Inh_5', 'Inh_6',
-                          'Inh_7', 'Inh_8', 'Inh_9', 'Inh_10', 'Inh_11', 'Inh_12', 'Inh_13'])
-e_type_spiny = np.array(['Exc_1', 'Exc_2', 'Exc_3', 'Exc_4'])
-
-
-e_nid_aspiny = []
-
-for i in e_type_aspiny:
-    idx = np.where(gouwens_df['e-type'] == i)[0]
-    e_nid_aspiny.append(np.array(gouwens_df['specimen_id'].iloc[idx]))
-    
-e_nid_spiny = []
-
-for i in e_type_spiny:
-    idx = np.where(gouwens_df['e-type'] == i)[0]
-    e_nid_spiny.append(np.array(gouwens_df['specimen_id'].iloc[idx]))
-
-e_obs_aspiny = []
-
-for i in range(len(e_nid_aspiny)):
-    e_obs_aspiny_temp = []
-    for j in e_nid_aspiny[i]:
-        if str(j) in neuron_id:
-            e_obs_aspiny_temp.append(ind2_aspiny[np.argwhere(aspiny_idx == np.where(neuron_id == str(j))[0])[0]][0])
-    e_obs_aspiny.append(e_obs_aspiny_temp)
-        
-e_obs_spiny = []
-
-for i in range(len(e_nid_spiny)):
-    e_obs_spiny_temp = []
-    for j in e_nid_spiny[i]:
-        if str(j) in neuron_id:
-            e_obs_spiny_temp.append(ind2_spiny[np.argwhere(spiny_idx == np.where(neuron_id == str(j))[0])[0]][0])
-    e_obs_spiny.append(e_obs_spiny_temp)
-
-#%% metype Comparison with Gouwens et al.
-
-me_type_aspiny = np.array([ 'ME_Inh_1', 'ME_Inh_2', 'ME_Inh_3', 'ME_Inh_4', 
-                           'ME_Inh_5', 'ME_Inh_6', 'ME_Inh_7', 'ME_Inh_8', 
-                           'ME_Inh_9', 'ME_Inh_10', 'ME_Inh_11', 'ME_Inh_12', 'ME_Inh_13',
-                           'ME_Inh_14', 'ME_Inh_15', 'ME_Inh_16', 'ME_Inh_17', 'ME_Inh_18',
-                           'ME_Inh_19', 'ME_Inh_20', 'ME_Inh_21', 'ME_Inh_22',
-                           'ME_Inh_23', 'ME_Inh_24', 'ME_Inh_25', 'ME_Inh_26'])
-me_type_spiny = np.array(['ME_Exc_1', 'ME_Exc_2', 'ME_Exc_3', 'ME_Exc_4',
-                          'ME_Exc_5', 'ME_Exc_6', 'ME_Exc_7', 'ME_Exc_8', 
-                          'ME_Exc_9', 'ME_Exc_10', 'ME_Exc_11', 'ME_Exc_12', 
-                          'ME_Exc_13', 'ME_Exc_14', 'ME_Exc_15', 'ME_Exc_16', 
-                          'ME_Exc_17', 'ME_Exc_18', 'ME_Exc_19', 'ME_Exc_20'])
-
-me_nid_aspiny = []
-
-for i in me_type_aspiny:
-    idx = np.where(gouwens_df['me-type'] == i)[0]
-    me_nid_aspiny.append(np.array(gouwens_df['specimen_id'].iloc[idx]))
-    
-me_nid_spiny = []
-
-for i in me_type_spiny:
-    idx = np.where(gouwens_df['me-type'] == i)[0]
-    me_nid_spiny.append(np.array(gouwens_df['specimen_id'].iloc[idx]))
-
-me_obs_aspiny = []
-
-for i in range(len(me_nid_aspiny)):
-    me_obs_aspiny_temp = []
-    for j in me_nid_aspiny[i]:
-        if str(j) in neuron_id:
-            me_obs_aspiny_temp.append(ind2_aspiny[np.argwhere(aspiny_idx == np.where(neuron_id == str(j))[0])[0]][0])
-    me_obs_aspiny.append(me_obs_aspiny_temp)
-        
-me_obs_spiny = []
-
-for i in range(len(me_nid_spiny)):
-    me_obs_spiny_temp = []
-    for j in me_nid_spiny[i]:
-        if str(j) in neuron_id:
-            me_obs_spiny_temp.append(ind2_spiny[np.argwhere(spiny_idx == np.where(neuron_id == str(j))[0])[0]][0])
-    me_obs_spiny.append(me_obs_spiny_temp)
-    
     
 #%%
 
@@ -911,41 +658,10 @@ print(cramers_v(np.array(m_nid_spiny_flat), np.array(m_c_spiny)))
 print(cramers_v(np.array(m_nid_aspiny_flat), np.array(m_c_aspiny)))
 
 
-#%% plot all neurons
-
-branch_coor_flat = [item for sublist in branch_coor for item in sublist]
-branch_coor_flat = np.array([item for sublist in branch_coor_flat for item in sublist])
-Xmax = np.max(branch_coor_flat[:,0])
-Xmin = np.min(branch_coor_flat[:,0])
-Ymax = np.max(branch_coor_flat[:,1])
-Ymin = np.min(branch_coor_flat[:,1])
-Zmax = np.max(branch_coor_flat[:,2])
-Zmin = np.min(branch_coor_flat[:,2])
-
-fig = plt.figure(figsize=(24, 16))
-ax = plt.axes(projection='3d')
-ax.set_box_aspect((1,1,1))
-for p in branch_coor:
-    c = np.random.random(size=3)
-    for b in p:
-        for f in range(len(b)-1):
-            morph_line = np.vstack((b[f], b[f+1]))
-            ax.plot3D(morph_line[:,0], morph_line[:,1], morph_line[:,2], color=c, lw=0.5)
-            
-max_range = np.array([Xmax-Xmin, Ymax-Ymin, Zmax-Zmin]).max()
-ax.set_xlim((0.5*(Xmax+Xmin)-0.5*max_range, 0.5*(Xmax+Xmin)+0.5*max_range))
-ax.set_ylim((0.5*(Ymax+Ymin)-0.5*max_range, 0.5*(Ymax+Ymin)+0.5*max_range))
-ax.set_zlim((0.5*(Zmax+Zmin)-0.5*max_range, 0.5*(Zmax+Zmin)+0.5*max_range))
-
-plt.savefig('./Allenfigures/morph_all.png', dpi=300, bbox_inches='tight')
-plt.close()
-
-
 #%% Metric testing
 
 branch_length_average = 40.99789638178139
-
-rgymean = 2*147.66540460265043
+rgymean = 295.33080920530085
 
 i1 = np.argmin(np.abs(q - 2*np.pi/rgymean))
 i2 = np.argmin(np.abs(q - 2*np.pi/branch_length_average))+1
@@ -1082,7 +798,7 @@ for n in range(5):
     ind2_aspiny_idx_sort_all.append(ind2_aspiny_idx_sort)
     ind2_spiny_idx_sort_all.append(ind2_spiny_idx_sort)
 
-#%%
+#%% Metric testing plotting
 
 import matplotlib.ticker as ticker
 from mpl_toolkits.axisartist.parasite_axes import SubplotHost
