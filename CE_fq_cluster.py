@@ -275,11 +275,11 @@ for i,j in enumerate(ind3_idx_sort):
         plt.plot(q[220:270], line4[220:270], lw=1.5, color='k')
         plt.plot(q[150:200], line5[200:250], lw=1.5, color='tab:green')
         
-        plt.text(0.03, 8e-1, r'$\nu = \dfrac{7}{16}$', fontsize=13, color='tab:blue')
-        plt.text(0.007, 5e-2, r'$\nu = \dfrac{1}{4}$', fontsize=13, color='tab:red')
-        plt.text(0.1, 2e-1, r'$\nu = 0.388$', fontsize=13, color='tab:purple')
-        plt.text(0.4, 5e-2, r'$\nu = 1$', fontsize=13, color='k')
-        plt.text(0.03, 5e-2, r'$\nu = \dfrac{1}{2}$', fontsize=13, color='tab:green')
+        plt.text(0.03, 8e-1, r'$\mathcal{D} = 2.286$', fontsize=13, color='tab:blue')
+        plt.text(0.007, 5e-2, r'$\mathcal{D} = 4$', fontsize=13, color='tab:red')
+        plt.text(0.1, 2e-1, r'$\mathcal{D} = 2.53$', fontsize=13, color='tab:purple')
+        plt.text(0.4, 5e-2, r'$\mathcal{D} = 1$', fontsize=13, color='k')
+        plt.text(0.03, 5e-2, r'$\mathcal{D} = 2$', fontsize=13, color='tab:green')
     
     plt.xscale('log')
     plt.yscale('log')

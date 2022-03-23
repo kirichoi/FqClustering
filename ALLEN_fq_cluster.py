@@ -297,11 +297,11 @@ for i,j in enumerate(ind2_aspiny_idx_sort):
         plt.plot(q[220:270], line4[220:270], lw=1.5, color='k')
         plt.plot(q[150:200], line5[200:250], lw=1.5, color='tab:green')
         
-        plt.text(0.03, 8e-1, r'$\nu = \dfrac{7}{16}$', fontsize=13, color='tab:blue')
-        plt.text(0.007, 3e-3, r'$\nu = \dfrac{1}{4}$', fontsize=13, color='tab:red')
-        plt.text(0.1, 2e-1, r'$\nu = 0.395$', fontsize=13, color='tab:purple')
-        plt.text(0.4, 1e-1, r'$\nu = 1$', fontsize=13, color='k')
-        plt.text(0.03, 1e-4, r'$\nu = \dfrac{1}{2}$', fontsize=13, color='tab:green')
+        plt.text(0.03, 8e-1, r'$\mathcal{D} = 2.286$', fontsize=13, color='tab:blue')
+        plt.text(0.007, 3e-3, r'$\mathcal{D} = 4$', fontsize=13, color='tab:red')
+        plt.text(0.1, 2e-1, r'$\mathcal{D} = 2.53$', fontsize=13, color='tab:purple')
+        plt.text(0.4, 1e-1, r'$\mathcal{D} = 1$', fontsize=13, color='k')
+        plt.text(0.03, 1e-4, r'$\mathcal{D} = 2$', fontsize=13, color='tab:green')
     
     plt.xscale('log')
     plt.yscale('log')
@@ -352,11 +352,11 @@ for i,j in enumerate(ind2_spiny_idx_sort):
         plt.plot(q[200:250], line4[200:250], lw=1.5, color='k')
         plt.plot(q[160:200], line5[200:240], lw=1.5, color='tab:green')
         
-        plt.text(0.03, 8e-1, r'$\nu = \dfrac{7}{16}$', fontsize=13, color='tab:blue')
-        plt.text(0.007, 3e-3, r'$\nu = \dfrac{1}{4}$', fontsize=13, color='tab:red')
-        plt.text(0.1, 1e-1, r'$\nu = 0.395$', fontsize=13, color='tab:purple')
-        plt.text(0.13, 1e-2, r'$\nu = 1$', fontsize=13)
-        plt.text(0.1, 1e-3, r'$\nu = \dfrac{1}{2}$', fontsize=13, color='tab:green')
+        plt.text(0.03, 8e-1, r'$\mathcal{D} = 2.286$', fontsize=13, color='tab:blue')
+        plt.text(0.007, 3e-3, r'$\mathcal{D} = 4$', fontsize=13, color='tab:red')
+        plt.text(0.1, 1e-1, r'$\mathcal{D} = 2.53$', fontsize=13, color='tab:purple')
+        plt.text(0.13, 1e-2, r'$\mathcal{D} = 1$', fontsize=13)
+        plt.text(0.1, 1e-3, r'$\mathcal{D} = 2$', fontsize=13, color='tab:green')
     
     plt.xscale('log')
     plt.yscale('log')
@@ -380,20 +380,11 @@ for i in ind2_spiny_idx_sort[4]:
     
 sc5f = [item for sublist in sc5 for item in sublist]
 
-sc8 = []
-
-for i in ind2_spiny_idx_sort[2]:
-    sc8.append(length_branch[i])
-    
-sc8f = [item for sublist in sc8 for item in sublist]
-
 fig = plt.figure(figsize=(6,4))
 plt.hist(sc5f, bins=67, density=True, alpha=0.5, color='tab:red')
-plt.hist(sc8f, bins=67, density=True, alpha=0.5, color='tab:blue')
-plt.xlabel('Branch Length ($l$)', fontsize=15)
+plt.xlabel('Branch Length $l$ ($\mu m$)', fontsize=15)
 plt.ylabel('Probability Density', fontsize=15)
-plt.legend(['$C^{spiny}_{5}$', '$C^{spiny}_{8}$'], fontsize=15)
-# plt.savefig('./Allenfigures/l_dist_sc58_1.pdf', dpi=300, bbox_inches='tight')
+# plt.savefig('./Allenfigures/l_dist_sc5_1.pdf', dpi=300, bbox_inches='tight')
 plt.show()
 
 #%% Box plot of branch length statistics for all neurons
