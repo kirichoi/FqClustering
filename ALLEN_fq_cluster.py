@@ -9,13 +9,10 @@ import os
 import numpy as np
 import scipy.cluster
 import pandas as pd
-import json
 import matplotlib.pyplot as plt
 from matplotlib import cm
-import sklearn.metrics
 import similaritymeasures as sm
 from dynamicTreeCut import cutreeHybrid
-from scipy.signal import argrelextrema, savgol_filter
 from scipy.spatial.transform import Rotation
 import copy
 from collections import Counter

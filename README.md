@@ -6,16 +6,16 @@ The methodology has been applieed to three different morphological reconstructio
 - ALLEN_fq_calc.py: the Python script for calculating F(q) curves from mouse V1 reconstructions
 - ALLEN_fq_cluster.py: the main Python script for the data analysis and figure reproduction for mouse V1
 - ALLEN_DB.py: the Python script for querying morphological reconstructions in .swc format for neurons in the mouse V1
-- ALLEN_fq: contains pre-computed F(q) curves from mouse V1 reconstructions
+- ALLEN_fq: a folder containing pre-computed F(q) curves from mouse V1 reconstructions
 - dendrite_type.npy: .npy file containing dendrite type labels for the neurons in mouse V1 queried from the Allen Cell Type database
 - CE_fq_calc.py: the Python script for calculating F(q) curves from the *C. elegans* nervous system
 - CE_fq_cluster.py: the main Python script for the data analysis and figure reproduction for the *C. elegans* nervous system
-- CE_fq_new: contains pre-computed F(q) curves from the *C. elegans* nervous system
+- CE_fq_new: a folder containing pre-computed F(q) curves from the *C. elegans* nervous system
 - Dros_fq_calc.py: the Python script for calculating F(q) curves from *Drosophila* olfactory PNs
 - Dros_fq_cluster.py: the main Python script for the data analysis and figure reproduction for *Drosophila* olfactory PNs
-- Dros_AL_fq: contains pre-computed F(q) curves from *Drosophila* olfactory PNs at the antennal lobe
-- Dros_MB_fq: contains pre-computed F(q) curves from *Drosophila* olfactory PNs at the mushroom body calyx
-- Dros_LH_fq: contains pre-computed F(q) curves from *Drosophila* olfactory PNs at the lateral horn
+- Dros_AL_fq: a folder containing pre-computed F(q) curves from *Drosophila* olfactory PNs at the antennal lobe
+- Dros_MB_fq: a folder containing pre-computed F(q) curves from *Drosophila* olfactory PNs at the mushroom body calyx
+- Dros_LH_fq: a folder containing pre-computed F(q) curves from *Drosophila* olfactory PNs at the lateral horn
 
 There are few other files necessary that are not included in this repository that needs to be acquired separately.
 
