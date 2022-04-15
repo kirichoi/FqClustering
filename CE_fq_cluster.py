@@ -183,6 +183,19 @@ print('Motor: ' + str(len(motor)))
 print('Polymodal: ' + str(len(polymodal))) 
 print('Other: ' + str(len(other))) 
 
+neuron_type_fixed = []
+
+for i in neuron_type:
+    if i == 'SensoryNeuron':
+        neuron_type_fixed.append('Sensory')
+    elif i == 'Interneuron':
+        neuron_type_fixed.append('Inter')
+    elif i == 'Motor Neuron':
+        neuron_type_fixed.append('Motor')
+    elif i == 'PolymodalNeuron':
+        neuron_type_fixed.append('Polymodal')
+    elif i == 'NeurUnkFunc':
+        neuron_type_fixed.append('Unknown')
 
 def radiusOfGyration(morph_coor, morph_dia):
     cML = np.empty((len(morph_coor), 3))
@@ -239,6 +252,20 @@ for i,j in enumerate(ind3_idx):
     ind3_idx_rgy.append(np.mean(rgyb))
 
 ind3_idx_sort = list(np.array(ind3_idx, dtype=object)[np.argsort(ind3_idx_rgy)[::-1]])
+
+
+#%% Total contour length per cluster
+
+tl = []
+for i in ind3_idx_sort:
+    ttl = []
+    for j in i:
+        ttl.append(np.sum(length_branch[j]))
+    tl.append(ttl)
+    
+tl_sum = []
+for i in tl:
+    tl_sum.append(np.sum(i))
 
 #%% F(q) curves per cluster
 
@@ -318,6 +345,270 @@ for i in range(len(ind3_idx_sort)):
     ax.set_xlim(-360, 470)
     ax.set_ylim(-40, 35)
     # plt.savefig('./CEfigures/morph_CE_c' + str(i+1) + '_3.png', dpi=300, bbox_inches='tight')
+    plt.show()
+
+
+#%% Functional pie chart with different sizes
+
+cl = np.array(['tab:red', 'tab:green', 'tab:blue', 'tab:orange', 'tab:purple'])
+
+test_dist3 = []
+
+for i in range(len(ind3_idx_sort)):
+    test_dist3_temp = []
+    c = Counter(np.array(neuron_type_fixed)[ind3_idx_sort[i]])
+    test_dist3_temp.append(c['Sensory'])
+    test_dist3_temp.append(c['Inter'])
+    test_dist3_temp.append(c['Motor'])
+    test_dist3_temp.append(c['Polymodal'])
+    test_dist3_temp.append(c['Unknown'])
+    test_dist3.append(test_dist3_temp)
+
+category_names = ['$C_{1}^{CE}$', '$C_{2}^{CE}$', '$C_{3}^{CE}$', '$C_{4}^{CE}$', 
+                  '$C_{5}^{CE}$']
+
+fig, ax = plt.subplots(1,5,figsize=(14,3))
+for j in range(5):
+    tidx = np.nonzero(test_dist3[j])
+    fracs = np.array(test_dist3[j])[tidx]
+    total = sum(fracs)
+    _, _, autotexts = ax[j].pie(fracs, radius=2*np.sqrt(tl_sum[j]/np.max(tl_sum)), autopct=lambda p: '{:.0f}'.format(p * total / 100), colors=cl[tidx])
+    # ax[j].axis('equal')
+    ax[j].set_title(category_names[j], fontsize=18)
+    for autotext in autotexts:
+        autotext.set_color('white')
+        autotext.set_size(15)
+# plt.savefig('./CEfigures/pie_CE_ds_1.pdf', dpi=300, bbox_inches='tight')
+plt.show()
+
+#%% Subclusters in cluster 4 and 5
+
+fq_dist1 = fq_dist[ind3_idx_sort[3]]
+fq_dist1 = fq_dist1[:,ind3_idx_sort[3]]
+
+fq_dist2 = fq_dist[ind3_idx_sort[4]]
+fq_dist2 = fq_dist2[:,ind3_idx_sort[4]]
+
+link1 = scipy.cluster.hierarchy.linkage(scipy.spatial.distance.squareform(fq_dist1), 
+                                       method='complete', optimal_ordering=True)
+
+link2 = scipy.cluster.hierarchy.linkage(scipy.spatial.distance.squareform(fq_dist2), 
+                                       method='complete', optimal_ordering=True)
+
+ind1 = cutreeHybrid(link1, scipy.spatial.distance.squareform(fq_dist1), minClusterSize=1)['labels']
+
+ind1_idx = []
+
+for i in np.unique(ind1):
+    ind1_idx.append(np.where(ind1 == i)[0])
+
+ind1_idx_rgy = []
+
+for i,j in enumerate(ind1_idx):
+    rgyb, cmb = radiusOfGyration(list(np.array(morph_coor, dtype=object)[ind3_idx_sort[3][j]]), 
+                                 list(np.array(morph_dia, dtype=object)[ind3_idx_sort[3][j]]))
+    ind1_idx_rgy.append(np.mean(rgyb))
+
+ind1_idx_sort = list(np.array(ind1_idx, dtype=object)[np.argsort(ind1_idx_rgy)[::-1]])
+
+tl1 = []
+for i in ind1_idx_sort:
+    ttl = []
+    for j in i:
+        ttl.append(np.sum(length_branch[j]))
+    tl1.append(ttl)
+    
+tl1_sum = []
+for i in tl1:
+    tl1_sum.append(np.sum(i))
+
+ind2 = cutreeHybrid(link2, scipy.spatial.distance.squareform(fq_dist2), minClusterSize=1)['labels']
+
+ind2_idx = []
+
+for i in np.unique(ind2):
+    ind2_idx.append(np.where(ind2 == i)[0])
+
+ind2_idx_rgy = []
+
+for i,j in enumerate(ind2_idx):
+    rgyb, cmb = radiusOfGyration(list(np.array(morph_coor, dtype=object)[ind3_idx_sort[4][j]]), 
+                                 list(np.array(morph_dia, dtype=object)[ind3_idx_sort[4][j]]))
+    ind2_idx_rgy.append(np.mean(rgyb))
+
+ind2_idx_sort = list(np.array(ind2_idx, dtype=object)[np.argsort(ind2_idx_rgy)[::-1]])
+
+tl2 = []
+for i in ind2_idx_sort:
+    ttl = []
+    for j in i:
+        ttl.append(np.sum(length_branch[j]))
+    tl2.append(ttl)
+    
+tl2_sum = []
+for i in tl2:
+    tl2_sum.append(np.sum(i))
+
+#%% Functional pie chart with different sizes for cluster 4 and 5
+
+test_dist1 = []
+
+for i in range(len(ind1_idx_sort)):
+    test_dist1_temp = []
+    c = Counter(np.array(neuron_type_fixed)[ind3_idx_sort[3][ind1_idx_sort[i]]])
+    test_dist1_temp.append(c['Sensory'])
+    test_dist1_temp.append(c['Inter'])
+    test_dist1_temp.append(c['Motor'])
+    test_dist1_temp.append(c['Polymodal'])
+    test_dist1_temp.append(c['Unknown'])
+    test_dist1.append(test_dist1_temp)
+
+category_names = ['$C_{4;1}^{CE}$', '$C_{4;2}^{CE}$', '$C_{4;3}^{CE}$', '$C_{4;4}^{CE}$', 
+                  '$C_{4;5}^{CE}$', '$C_{4;6}^{CE}$', '$C_{4;7}^{CE}$', '$C_{4;8}^{CE}$', 
+                  '$C_{4;9}^{CE}$', '$C_{4;10}^{CE}$', '$C_{4;11}^{CE}$', '$C_{4;12}^{CE}$', 
+                  '$C_{4;13}^{CE}$', '$C_{4;14}^{CE}$', '$C_{4;15}^{CE}$']
+
+fig, ax = plt.subplots(3,5,figsize=(14,9))
+for i in range(3):
+    for j in range(5):
+        tidx = np.nonzero(test_dist1[i*5+j])
+        fracs = np.array(test_dist1[i*5+j])[tidx]
+        total = sum(fracs)
+        _, _, autotexts = ax[i][j].pie(fracs, radius=1.5*np.sqrt(tl1_sum[j]/np.max(tl1_sum)), autopct=lambda p: '{:.0f}'.format(p * total / 100), colors=cl[tidx])
+        # ax[i][j].axis('equal')
+        ax[i][j].set_title(category_names[i*5+j], fontsize=18)
+        for autotext in autotexts:
+            autotext.set_color('white')
+            autotext.set_size(15)
+# plt.savefig('./CEfigures/pie_subcluster_CE4_ds_1.pdf', dpi=300, bbox_inches='tight')
+plt.show()
+
+test_dist2 = []
+
+for i in range(len(ind2_idx_sort)):
+    test_dist2_temp = []
+    c = Counter(np.array(neuron_type_fixed)[ind3_idx_sort[4][ind2_idx_sort[i]]])
+    test_dist2_temp.append(c['Sensory'])
+    test_dist2_temp.append(c['Inter'])
+    test_dist2_temp.append(c['Motor'])
+    test_dist2_temp.append(c['Polymodal'])
+    test_dist2_temp.append(c['Unknown'])
+    test_dist2.append(test_dist2_temp)
+
+category_names = ['$C_{5;1}^{CE}$', '$C_{5;2}^{CE}$', '$C_{5;3}^{CE}$', '$C_{5;4}^{CE}$', 
+                  '$C_{5;5}^{CE}$', '$C_{5;6}^{CE}$', '$C_{5;7}^{CE}$', '$C_{5;8}^{CE}$', 
+                  '$C_{5;9}^{CE}$', '$C_{5;10}^{CE}$']
+
+fig, ax = plt.subplots(2,5,figsize=(14,6))
+for i in range(2):
+    for j in range(5):
+        tidx = np.nonzero(test_dist2[i*5+j])
+        fracs = np.array(test_dist2[i*5+j])[tidx]
+        total = sum(fracs)
+        _, _, autotexts = ax[i][j].pie(fracs, radius=1.5*np.sqrt(tl2_sum[j]/np.max(tl2_sum)), autopct=lambda p: '{:.0f}'.format(p * total / 100), colors=cl[tidx])
+        # ax[i][j].axis('equal')
+        ax[i][j].set_title(category_names[i*5+j], fontsize=18)
+        for autotext in autotexts:
+            autotext.set_color('white')
+            autotext.set_size(15)
+# plt.savefig('./CEfigures/pie_subcluster_CE5_ds_1.pdf', dpi=300, bbox_inches='tight')
+plt.show()
+
+#%% Neuron reconstruction diagram per cluster with function
+
+fig = plt.figure(figsize=(24, 1))
+ax = fig.add_subplot(111)
+ax.axis('off')
+for f in ind3_idx_sort[3]:
+    if neuron_type_fixed[f] == 'Sensory':
+        co = 'tab:red'
+    elif neuron_type_fixed[f] == 'Inter':
+        co = 'tab:green'
+    elif neuron_type_fixed[f] == 'Motor':
+        co = 'tab:blue'
+    elif neuron_type_fixed[f] == 'Polymodal':
+        co = 'tab:orange'
+    elif neuron_type_fixed[f] == 'Unknown':
+        co = 'tab:purple'
+    tararr = np.array(morph_coor[f])
+    somaIdx = np.where(np.array(morph_parent[f]) < 0)[0]
+    for p in range(len(morph_parent[f])):
+        if morph_parent[f][p] < 0:
+            pass
+        else:
+            morph_line = np.vstack((morph_coor[f][morph_id[f].index(morph_parent[f][p])], morph_coor[f][p]))
+            plt.plot(morph_line[:,1], morph_line[:,0], color=co)
+# ax.set_xlim(-360, -200)
+# ax.set_ylim(-30, 25)
+ax.set_xlim(-360, 470)
+ax.set_ylim(-40, 35)
+# ax.set_zlim(-300, 300)
+# plt.savefig('./CEfigures/morph_CE_c4_f_t_1.png', dpi=300, bbox_inches='tight')
+plt.show()
+
+fig = plt.figure(figsize=(24, 1))
+ax = fig.add_subplot(111)
+ax.axis('off')
+for f in ind3_idx_sort[4]:
+    if neuron_type_fixed[f] == 'Sensory':
+        co = 'tab:red'
+    elif neuron_type_fixed[f] == 'Inter':
+        co = 'tab:green'
+    elif neuron_type_fixed[f] == 'Motor':
+        co = 'tab:blue'
+    elif neuron_type_fixed[f] == 'Polymodal':
+        co = 'tab:orange'
+    elif neuron_type_fixed[f] == 'Unknown':
+        co = 'tab:purple'
+    tararr = np.array(morph_coor[f])
+    somaIdx = np.where(np.array(morph_parent[f]) < 0)[0]
+    for p in range(len(morph_parent[f])):
+        if morph_parent[f][p] < 0:
+            pass
+        else:
+            morph_line = np.vstack((morph_coor[f][morph_id[f].index(morph_parent[f][p])], morph_coor[f][p]))
+            plt.plot(morph_line[:,1], morph_line[:,0], color=co)
+# ax.set_xlim(-360, -200)
+# ax.set_ylim(-30, 25)
+ax.set_xlim(-360, 470)
+ax.set_ylim(-40, 35)
+# ax.set_zlim(-300, 300)
+# plt.savefig('./CEfigures/morph_CE_c5_f_1.png', dpi=300, bbox_inches='tight')
+plt.show()
+
+#%% Neuron reconstruction diagram per function
+
+for i in range(len(np.unique(neuron_type_fixed))):
+    idx = np.where(np.array(neuron_type_fixed) == np.unique(neuron_type_fixed)[i])[0]
+    
+    if np.unique(neuron_type_fixed)[i] == 'Sensory':
+        co = 'tab:red'
+    elif np.unique(neuron_type_fixed)[i] == 'Inter':
+        co = 'tab:green'
+    elif np.unique(neuron_type_fixed)[i] == 'Motor':
+        co = 'tab:blue'
+    elif np.unique(neuron_type_fixed)[i] == 'Polymodal':
+        co = 'tab:orange'
+    elif np.unique(neuron_type_fixed)[i] == 'Unknown':
+        co = 'tab:purple'
+    
+    fig = plt.figure(figsize=(24, 1))
+    ax = fig.add_subplot(111)
+    ax.axis('off')
+    for f in idx:
+        tararr = np.array(morph_coor[f])
+        somaIdx = np.where(np.array(morph_parent[f]) < 0)[0]
+        for p in range(len(morph_parent[f])):
+            if morph_parent[f][p] < 0:
+                pass
+            else:
+                morph_line = np.vstack((morph_coor[f][morph_id[f].index(morph_parent[f][p])], morph_coor[f][p]))
+                plt.plot(morph_line[:,1], morph_line[:,0], color=co)
+    ax.set_xlim(-360, 470)
+    ax.set_ylim(-40, 35)
+    # ax.set_zlim(-300, 300)
+    
+    # plt.savefig('./CEfigures/morph_CE_f_' + str(np.unique(neuron_type_fixed)[i]) + '_1.png', dpi=300, bbox_inches='tight')
     plt.show()
 
 #%% Metric testing
