@@ -381,10 +381,12 @@ for i in ind2_spiny_idx_sort[4]:
 sc5f = [item for sublist in sc5 for item in sublist]
 
 fig = plt.figure(figsize=(6,4))
-plt.hist(sc5f, bins=67, density=True, alpha=0.5, color='tab:red')
+ax = fig.add_subplot(111)
+plt.hist(sc5f, bins=67, density=True, color='tab:red')
 plt.xlabel('Branch Length $l$ ($\mu m$)', fontsize=15)
-plt.ylabel('Probability Density', fontsize=15)
-# plt.savefig('./Allenfigures/l_dist_sc5_1.pdf', dpi=300, bbox_inches='tight')
+plt.ylabel('$P(l)$', fontsize=15)
+ax.ticklabel_format(axis='y', style='sci', scilimits=(-3,-3))
+# plt.savefig('./Allenfigures/l_dist_sc5_2.pdf', dpi=300, bbox_inches='tight')
 plt.show()
 
 #%% Box plot of branch length statistics for all neurons
