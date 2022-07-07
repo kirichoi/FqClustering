@@ -529,6 +529,71 @@ for i,j in enumerate(ind_AL_idx_sort):
         # plt.savefig(os.path.join(dirpath, AL_id[f]), dpi=300, bbox_inches='tight')
         plt.close()
 
+#%% Neuron morphology Poster per AL cluster
+
+ALcoor_per_n_ = []
+
+for i in ALcoor_per_n:
+    if len(i) > 0:
+        ALcoor_per_n_.append(i)
+
+cmap = cm.get_cmap('viridis', len(ind_AL_idx_sort))
+
+col = 10
+
+for i,c in enumerate(ind_AL_idx_sort):
+    row = int(len(c)/col)+1
+    
+    if i == 5:
+        co = (0.798216, 0.280197, 0.469538, 1.0)
+    if i == 6:
+        co = (1.0, 0.25, 0.0, 1.0)
+    else:
+        co = cmap(i)
+    
+    fig, ax = plt.subplots(row, col, figsize=(3*col,3*row))
+    
+    if row == 1:
+        for m in range(col):
+            if m == 0:
+                ax[m].set_aspect('equal')
+            else:
+                ax[m].axis('off')
+                ax[m].set_aspect('equal')
+    else:
+        for l in range(row):
+            for m in range(col):
+                if (l == 0) and (m == 0):
+                    ax[l][m].set_aspect('equal')
+                else:
+                    ax[l][m].axis('off')
+                    ax[l][m].set_aspect('equal')
+    
+    for n,j in enumerate(c):
+        if row == 1:
+            for p in ALcoor_per_n_[j]:
+                for b in range(len(p)-1):
+                    morph_line = np.vstack((p[b], p[b+1]))
+                    ax[n-int(n/col)*col].plot(morph_line[:,0], morph_line[:,2], color=co, lw=0.75)
+
+            ax[n-int(n/col)*col].set_title(AL_id[j], fontsize=15)
+            ax[n-int(n/col)*col].set_xlim(475, 625)
+            ax[n-int(n/col)*col].set_ylim(0, 150)
+        
+        else:
+            for p in ALcoor_per_n_[j]:
+                for b in range(len(p)-1):
+                    morph_line = np.vstack((p[b], p[b+1]))
+                    ax[int(n/col)][n-int(n/col)*col].plot(morph_line[:,0], morph_line[:,2], color=co, lw=0.75)
+                
+            ax[int(n/col)][n-int(n/col)*col].set_title(AL_id[j], fontsize=15)
+            ax[int(n/col)][n-int(n/col)*col].set_xlim(475, 625)
+            ax[int(n/col)][n-int(n/col)*col].set_ylim(0, 150)
+    
+    plt.tight_layout()
+    # plt.savefig('./Dros_AL_C' + str(i+1) + '.pdf', dpi=300, bbox_inches='tight')
+    plt.close()
+
 #%% Read MB calyx Fq
 
 PATH = r'./Dros_MB_fq'
@@ -694,6 +759,71 @@ for i,j in enumerate(ind_MB_idx_sort):
         # plt.savefig(os.path.join(dirpath, MB_id[f]), dpi=300, bbox_inches='tight')
         plt.close()
 
+#%% Neuron morphology poster per MB calyx cluster
+
+MBcoor_per_n_ = []
+
+for i in MBcoor_per_n:
+    if len(i) > 0:
+        MBcoor_per_n_.append(i)
+
+cmap = cm.get_cmap('viridis', len(ind_MB_idx_sort))
+
+col = 10
+
+for i,c in enumerate(ind_MB_idx_sort):
+    row = int(len(c)/col)+1
+    
+    if i == 4:
+        co = (0.798216, 0.280197, 0.469538, 1.0)
+    if i == 5:
+        co = (1.0, 0.25, 0.0, 1.0)
+    else:
+        co = cmap(i)
+    
+    fig, ax = plt.subplots(row, col, figsize=(3*col,3*row))
+    
+    if row == 1:
+        for m in range(col):
+            if m == 0:
+                ax[m].set_aspect('equal')
+            else:
+                ax[m].axis('off')
+                ax[m].set_aspect('equal')
+    else:
+        for l in range(row):
+            for m in range(col):
+                if (l == 0) and (m == 0):
+                    ax[l][m].set_aspect('equal')
+                else:
+                    ax[l][m].axis('off')
+                    ax[l][m].set_aspect('equal')
+    
+    for n,j in enumerate(c):
+        if row == 1:
+            for p in MBcoor_per_n_[j]:
+                for b in range(len(p)-1):
+                    morph_line = np.vstack((p[b], p[b+1]))
+                    ax[n-int(n/col)*col].plot(morph_line[:,0], morph_line[:,2], color=co, lw=0.75)
+
+            ax[n-int(n/col)*col].set_title(MB_id[j], fontsize=15)
+            ax[n-int(n/col)*col].set_xlim(450, 600)
+            ax[n-int(n/col)*col].set_ylim(100, 250)
+        
+        else:
+            for p in MBcoor_per_n_[j]:
+                for b in range(len(p)-1):
+                    morph_line = np.vstack((p[b], p[b+1]))
+                    ax[int(n/col)][n-int(n/col)*col].plot(morph_line[:,0], morph_line[:,2], color=co, lw=0.75)
+                
+            ax[int(n/col)][n-int(n/col)*col].set_title(MB_id[j], fontsize=15)
+            ax[int(n/col)][n-int(n/col)*col].set_xlim(450, 600)
+            ax[int(n/col)][n-int(n/col)*col].set_ylim(100, 250)
+    
+    plt.tight_layout()
+    # plt.savefig('./Dros_MB_C' + str(i+1) + '.pdf', dpi=300, bbox_inches='tight')
+    plt.close()
+
 #%% Read LH Fq
 
 PATH = r'./Dros_LH_fq'
@@ -848,6 +978,71 @@ for i,j in enumerate(ind_LH_idx_sort):
                     plt.plot(morph_line[:,0], morph_line[:,2], color=cmap(i))
         # plt.savefig(os.path.join(dirpath, LH_id[f]), dpi=300, bbox_inches='tight')
         plt.close()
+
+#%% Neuron morphology poster per LH cluster
+
+LHcoor_per_n_ = []
+
+for i in LHcoor_per_n:
+    if len(i) > 0:
+        LHcoor_per_n_.append(i)
+
+cmap = cm.get_cmap('viridis', len(ind_LH_idx_sort))
+
+col = 10
+
+for i,c in enumerate(ind_LH_idx_sort):
+    row = int(len(c)/col)+1
+    
+    if i == 4:
+        co = (0.798216, 0.280197, 0.469538, 1.0)
+    if i == 5:
+        co = (1.0, 0.25, 0.0, 1.0)
+    else:
+        co = cmap(i)
+    
+    fig, ax = plt.subplots(row, col, figsize=(3*col,3*row))
+    
+    if row == 1:
+        for m in range(col):
+            if m == 0:
+                ax[m].set_aspect('equal')
+            else:
+                ax[m].axis('off')
+                ax[m].set_aspect('equal')
+    else:
+        for l in range(row):
+            for m in range(col):
+                if (l == 0) and (m == 0):
+                    ax[l][m].set_aspect('equal')
+                else:
+                    ax[l][m].axis('off')
+                    ax[l][m].set_aspect('equal')
+    
+    for n,j in enumerate(c):
+        if row == 1:
+            for p in LHcoor_per_n_[j]:
+                for b in range(len(p)-1):
+                    morph_line = np.vstack((p[b], p[b+1]))
+                    ax[n-int(n/col)*col].plot(morph_line[:,0], morph_line[:,2], color=co, lw=0.75)
+
+            ax[n-int(n/col)*col].set_title(LH_id[j], fontsize=15)
+            ax[n-int(n/col)*col].set_xlim(375, 525)
+            ax[n-int(n/col)*col].set_ylim(100, 250)
+        
+        else:
+            for p in LHcoor_per_n_[j]:
+                for b in range(len(p)-1):
+                    morph_line = np.vstack((p[b], p[b+1]))
+                    ax[int(n/col)][n-int(n/col)*col].plot(morph_line[:,0], morph_line[:,2], color=co, lw=0.75)
+                
+            ax[int(n/col)][n-int(n/col)*col].set_title(LH_id[j], fontsize=15)
+            ax[int(n/col)][n-int(n/col)*col].set_xlim(375, 525)
+            ax[int(n/col)][n-int(n/col)*col].set_ylim(100, 250)
+    
+    plt.tight_layout()
+    # plt.savefig('./Dros_LH_C' + str(i+1) + '.pdf', dpi=300, bbox_inches='tight')
+    plt.close()
 
 #%% Metric testing full PN
 

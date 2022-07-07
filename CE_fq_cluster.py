@@ -347,6 +347,68 @@ for i in range(len(ind3_idx_sort)):
     # plt.savefig('./CEfigures/morph_CE_c' + str(i+1) + '_3.png', dpi=300, bbox_inches='tight')
     plt.show()
 
+#%% Neuron morphology poster per cluster
+
+cmap = cm.get_cmap('viridis', len(ind3_idx_sort))
+
+col = 3
+
+for j,i in enumerate(ind3_idx_sort):
+    row = int(len(i)/col)+1
+    
+    if j == 4:
+        c = (0.798216, 0.280197, 0.469538, 1.0)
+    else:
+        c = cmap(j)
+        
+    fig, ax = plt.subplots(row, col, figsize=(21,0.5*len(i)))
+    
+    if row == 1:
+        for m in range(col):
+            if m == 0:
+                ax[m].set_aspect('equal')
+            else:
+                ax[m].axis('off')
+                ax[m].set_aspect('equal')
+    else:
+        for l in range(row):
+            for m in range(col):
+                if (l == 0) and (m == 0):
+                    ax[l][m].set_aspect('equal')
+                else:
+                    ax[l][m].axis('off')
+                    ax[l][m].set_aspect('equal')
+    
+    for n,f in enumerate(i):
+        tararr = np.array(morph_coor[f])
+        somaIdx = np.where(np.array(morph_parent[f]) < 0)[0]
+        if row == 1:
+            for p in range(len(morph_parent[f])):
+                if morph_parent[f][p] < 0:
+                    pass
+                else:
+                    morph_line = np.vstack((morph_coor[f][morph_id[f].index(morph_parent[f][p])], morph_coor[f][p]))
+                    ax[n-int(n/col)*col].plot(morph_line[:,1], morph_line[:,0], color=c, lw=0.75)
+            
+            ax[n-int(n/col)*col].set_title(neuron_id[f], fontsize=15)
+            ax[n-int(n/col)*col].set_xlim(-370, 420)
+            ax[n-int(n/col)*col].set_ylim(-30, 30)
+        else:
+            for p in range(len(morph_parent[f])):
+                if morph_parent[f][p] < 0:
+                    pass
+                else:
+                    morph_line = np.vstack((morph_coor[f][morph_id[f].index(morph_parent[f][p])], morph_coor[f][p]))
+                    ax[int(n/col)][n-int(n/col)*col].plot(morph_line[:,1], morph_line[:,0], color=c, lw=0.75)
+            
+            ax[int(n/col)][n-int(n/col)*col].set_title(neuron_id[f], fontsize=15)
+            ax[int(n/col)][n-int(n/col)*col].set_xlim(-370, 420)
+            ax[int(n/col)][n-int(n/col)*col].set_ylim(-30, 30)
+        
+    plt.tight_layout()
+    # plt.savefig('./CE_C' + str(j+1) + '.pdf', dpi=300, bbox_inches='tight')
+    plt.close()
+
 
 #%% Functional pie chart with different sizes
 

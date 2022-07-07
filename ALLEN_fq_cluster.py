@@ -467,17 +467,28 @@ branch_coor_rot = []
 for i in range(len(branch_coor)): 
     branch_coor_rot_t = []
     
-    apical_idx = np.argmax(length_branch[i])
+    apical_idx = np.flip(np.argsort(length_branch[i]))
     
     somcoor = morph_coor[i][somaP[i]]
     
-    if np.linalg.norm(np.subtract(somcoor, branch_coor[i][apical_idx][0])) > np.linalg.norm(np.subtract(somcoor, branch_coor[i][apical_idx][-1])):
-        vec = np.subtract(somcoor, branch_coor[i][apical_idx][0])
+    c = 0
+    
+    for k in range(5):
+        a = np.linalg.norm(np.subtract(somcoor, branch_coor[i][apical_idx[k]][0]))
+        b = np.linalg.norm(np.subtract(somcoor, branch_coor[i][apical_idx[k]][-1]))
+        if np.abs(a-b)/length_branch[i][apical_idx[k]] > c:
+            c = np.abs(a-b)/length_branch[i][apical_idx[k]]
+            atrue = a
+            btrue = b
+            ktrue = k
+    
+    if atrue > btrue:
+        vec = np.subtract(somcoor, branch_coor[i][apical_idx[ktrue]][0])
     else:
-        vec = np.subtract(somcoor, branch_coor[i][apical_idx][-1])
+        vec = np.subtract(somcoor, branch_coor[i][apical_idx[ktrue]][-1])
     
     vec = vec/np.linalg.norm(vec)
-
+    
     rotmat = get_rotation_matrix(vec, [0,0,-1])
     rot = Rotation.from_matrix(rotmat)
     
@@ -580,6 +591,183 @@ for i,c in enumerate(np.unique(ind2_aspiny)[np.argsort(ind2_aspiny_rgy)[::-1]]):
         # plt.savefig(os.path.join(dirpath, neuron_id[j]), dpi=300, bbox_inches='tight')
         plt.close()
 
+#%% Spiny and aspiny poster per cluster
+
+max_range_list = []
+
+for i in range(len(morph_coor_rot)):
+    Y = np.array(morph_coor_rot[i])[:,1]
+    Z = np.array(morph_coor_rot[i])[:,2]
+    max_range = np.array([Y.max()-Y.min(), Z.max()-Z.min()]).max()
+    max_range_list.append(max_range)
+
+max_range = np.max(max_range_list)
+
+N_cluster = len(np.unique(ind2_spiny))
+
+cmap = cm.get_cmap('viridis', N_cluster)
+
+for i,c in enumerate(np.unique(ind2_spiny)):
+    sidx = spiny_idx[np.where(ind2_spiny == c)]
+    
+    if c == 10:
+        co = (0.798216, 0.280197, 0.469538, 1.0)
+    elif c == 11:
+        co = (1.0, 0.25, 0.0, 1.0)
+    else:
+        co = cmap(i)
+    
+    col = 10
+    row = int(len(sidx)/col) + 1
+    fig, ax = plt.subplots(row, col, figsize=(3*col,3*row))
+    
+    if row == 1:
+        for m in range(col):
+            if m == 0:
+                ax[m].set_aspect('equal')
+            else:
+                ax[m].axis('off')
+                ax[m].set_aspect('equal')
+    else:
+        for l in range(row):
+            for m in range(col):
+                if (l == 0) and (m == 0):
+                    ax[l][m].set_aspect('equal')
+                else:
+                    ax[l][m].axis('off')
+                    ax[l][m].set_aspect('equal')
+    
+    for n,j in enumerate(sidx):
+        tararr = np.array(morph_coor_rot[j])
+        somaIdx = np.where(np.array(morph_parent[j]) < 0)[0]
+        X = np.array(morph_coor_rot[j])[:,0]
+        Y = np.array(morph_coor_rot[j])[:,1]
+        Z = np.array(morph_coor_rot[j])[:,2]
+        
+        if ((np.max(X) - np.min(X)) > (np.max(Y) - np.min(Y))):
+            axis = 0
+        else:
+            axis = 1
+        
+        if row == 1:
+            for p in range(len(morph_parent[j])):
+                if morph_parent[j][p] < 0:
+                    pass
+                else:
+                    morph_line = np.vstack((morph_coor_rot[j]
+                                            [morph_id[j].index(morph_parent[j][p])], morph_coor_rot[j][p]))
+                    ax[n-int(n/col)*col].plot(morph_line[:,axis], morph_line[:,2], color=co, lw=0.75)
+            
+            ax[n-int(n/col)*col].set_title(neuron_id[j], fontsize=15)
+            
+            if axis == 0:
+                ax[n-int(n/col)*col].set_xlim((0.5*(X.max()+X.min())-0.5*max_range, 0.5*(X.max()+X.min())+0.5*max_range))
+            else:
+                ax[n-int(n/col)*col].set_xlim((0.5*(Y.max()+Y.min())-0.5*max_range, 0.5*(Y.max()+Y.min())+0.5*max_range))
+            ax[n-int(n/col)*col].set_ylim((0.5*(Z.max()+Z.min())-0.5*max_range, 0.5*(Z.max()+Z.min())+0.5*max_range))
+    
+        else:
+            for p in range(len(morph_parent[j])):
+                if morph_parent[j][p] < 0:
+                    pass
+                else:
+                    morph_line = np.vstack((morph_coor_rot[j]
+                                            [morph_id[j].index(morph_parent[j][p])], morph_coor_rot[j][p]))
+                    ax[int(n/col)][n-int(n/col)*col].plot(morph_line[:,axis], morph_line[:,2], color=co, lw=0.75)
+            ax[int(n/col)][n-int(n/col)*col].set_title(neuron_id[j], fontsize=15)
+            
+            if axis == 0:
+                ax[int(n/col)][n-int(n/col)*col].set_xlim((0.5*(X.max()+X.min())-0.5*max_range, 0.5*(X.max()+X.min())+0.5*max_range))
+            else:
+                ax[int(n/col)][n-int(n/col)*col].set_xlim((0.5*(Y.max()+Y.min())-0.5*max_range, 0.5*(Y.max()+Y.min())+0.5*max_range))
+            ax[int(n/col)][n-int(n/col)*col].set_ylim((0.5*(Z.max()+Z.min())-0.5*max_range, 0.5*(Z.max()+Z.min())+0.5*max_range))
+
+    plt.tight_layout()
+    # plt.savefig('./spiny_C' + str(c) + '.pdf', dpi=300, bbox_inches='tight')
+    plt.close()
+
+
+N_cluster = len(np.unique(ind2_aspiny))
+
+cmap = cm.get_cmap('viridis', N_cluster)
+
+for i,c in enumerate(np.unique(ind2_aspiny)):
+    sidx = aspiny_idx[np.where(ind2_aspiny == c)]
+    
+    if c == 7:
+        co = (0.798216, 0.280197, 0.469538, 1.0)
+    elif c == 8:
+        co = (1.0, 0.25, 0.0, 1.0)
+    else:
+        co = cmap(i)
+    
+    col = 10
+    row = int(len(sidx)/col) + 1
+    fig, ax = plt.subplots(row, col, figsize=(3*col,3*row))
+    
+    if row == 1:
+        for m in range(col):
+            if m == 0:
+                ax[m].set_aspect('equal')
+            else:
+                ax[m].axis('off')
+                ax[m].set_aspect('equal')
+    else:
+        for l in range(row):
+            for m in range(col):
+                if (l == 0) and (m == 0):
+                    ax[l][m].set_aspect('equal')
+                else:
+                    ax[l][m].axis('off')
+                    ax[l][m].set_aspect('equal')
+    
+    for n,j in enumerate(sidx):
+        tararr = np.array(morph_coor_rot[j])
+        somaIdx = np.where(np.array(morph_parent[j]) < 0)[0]
+        X = np.array(morph_coor_rot[j])[:,0]
+        Y = np.array(morph_coor_rot[j])[:,1]
+        Z = np.array(morph_coor_rot[j])[:,2]
+        
+        if ((np.max(X) - np.min(X)) > (np.max(Y) - np.min(Y))):
+            axis = 0
+        else:
+            axis = 1
+        
+        if row == 1:
+            for p in range(len(morph_parent[j])):
+                if morph_parent[j][p] < 0:
+                    pass
+                else:
+                    morph_line = np.vstack((morph_coor_rot[j]
+                                            [morph_id[j].index(morph_parent[j][p])], morph_coor_rot[j][p]))
+                    ax[n-int(n/col)*col].plot(morph_line[:,axis], morph_line[:,2], color=co, lw=0.75)
+            ax[n-int(n/col)*col].set_title(neuron_id[j], fontsize=15)
+            
+            if axis == 0:
+                ax[n-int(n/col)*col].set_xlim((0.5*(X.max()+X.min())-0.5*max_range, 0.5*(X.max()+X.min())+0.5*max_range))
+            else:
+                ax[n-int(n/col)*col].set_xlim((0.5*(Y.max()+Y.min())-0.5*max_range, 0.5*(Y.max()+Y.min())+0.5*max_range))
+            ax[n-int(n/col)*col].set_ylim((0.5*(Z.max()+Z.min())-0.5*max_range, 0.5*(Z.max()+Z.min())+0.5*max_range))
+    
+        else:
+            for p in range(len(morph_parent[j])):
+                if morph_parent[j][p] < 0:
+                    pass
+                else:
+                    morph_line = np.vstack((morph_coor_rot[j]
+                                            [morph_id[j].index(morph_parent[j][p])], morph_coor_rot[j][p]))
+                    ax[int(n/col)][n-int(n/col)*col].plot(morph_line[:,axis], morph_line[:,2], color=co, lw=0.75)
+            ax[int(n/col)][n-int(n/col)*col].set_title(neuron_id[j], fontsize=15)
+            
+            if axis == 0:
+                ax[int(n/col)][n-int(n/col)*col].set_xlim((0.5*(X.max()+X.min())-0.5*max_range, 0.5*(X.max()+X.min())+0.5*max_range))
+            else:
+                ax[int(n/col)][n-int(n/col)*col].set_xlim((0.5*(Y.max()+Y.min())-0.5*max_range, 0.5*(Y.max()+Y.min())+0.5*max_range))
+            ax[int(n/col)][n-int(n/col)*col].set_ylim((0.5*(Z.max()+Z.min())-0.5*max_range, 0.5*(Z.max()+Z.min())+0.5*max_range))
+
+    plt.tight_layout()
+    # plt.savefig('./aspiny_C' + str(c) + '.pdf', dpi=300, bbox_inches='tight')
+    plt.close()
 
 #%% mtype Comparison with Gouwens et al.
 
