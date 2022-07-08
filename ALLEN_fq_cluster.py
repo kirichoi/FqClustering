@@ -55,7 +55,7 @@ def radiusOfGyration(morph_coor, morph_dia):
     
     return (rGy, cML)
 
-#%% Read reconstructions
+#%% Read Reconstructions
 
 PATH = r'./cell_types'
 
@@ -163,7 +163,7 @@ branch_length_average = np.mean(length_branch_flat)
 d2df = [item for sublist in d2d for item in sublist]
 
 
-#%% Distance calculation
+#%% Distance Calculation
 
 branch_length_average = 40.99789638178139
 rgymean = 295.33080920530085
@@ -223,7 +223,7 @@ link_aspiny = scipy.cluster.hierarchy.linkage(scipy.spatial.distance.squareform(
 link_spiny = scipy.cluster.hierarchy.linkage(scipy.spatial.distance.squareform(fq_dist_spiny), 
                                        method='complete', optimal_ordering=True)
 
-#%% Hybrid tree cutting
+#%% Hybrid Tree Cutting
 
 ind2_aspiny = cutreeHybrid(link_aspiny, scipy.spatial.distance.squareform(fq_dist_aspiny), minClusterSize=4)['labels']
 
@@ -257,7 +257,7 @@ for i,j in enumerate(ind2_spiny_idx):
 
 ind2_spiny_idx_sort = list(np.array(ind2_spiny_idx, dtype=object)[np.argsort(ind2_spiny_rgy)[::-1]])
 
-#%% Aspiny F(q) curves per cluster
+#%% Aspiny F(q) Curves per Cluster
 
 cmap = cm.get_cmap('viridis', len(ind2_aspiny_idx_sort))
 
@@ -312,7 +312,7 @@ for i,j in enumerate(ind2_aspiny_idx_sort):
     # plt.savefig('./Allenfigures/Fq_aspiny2_' + str(i+1) + '.pdf', dpi=300, bbox_inches='tight')
     plt.show()
 
-#%% Spiny F(q) curves per cluter
+#%% Spiny F(q) Curves per Cluter
 
 cmap = cm.get_cmap('viridis', len(ind2_spiny_idx_sort))
 
@@ -497,6 +497,7 @@ for i in range(len(branch_coor)):
         
     branch_coor_rot.append(branch_coor_rot_t)
     morph_coor_rot.append(rot.apply(morph_coor[i]))
+    
     
 #%% Spiny and aspiny neuron reconstruction diagram per cluster
 
@@ -769,7 +770,7 @@ for i,c in enumerate(np.unique(ind2_aspiny)):
     # plt.savefig('./aspiny_C' + str(c) + '.pdf', dpi=300, bbox_inches='tight')
     plt.close()
 
-#%% mtype Comparison with Gouwens et al.
+#%% mtype Comparison with Gouwens et al., 2019 paper
 
 m_type_aspiny = np.array(['Aspiny_1', 'Aspiny_2', 'Aspiny_3', 'Aspiny_4', 'Aspiny_5',
                           'Aspiny_6', 'Aspiny_7', 'Aspiny_8', 'Aspiny_9', 'Aspiny_10', 
@@ -816,27 +817,59 @@ for i in range(len(m_nid_spiny)):
     m_obs_spiny.append(m_obs_spiny_temp)
 
     
-#%%
+#%% Pearson's chi-square, Baker's Gamma, normalized mutual information, and homogeneity
+
+import sklearn
+from bisect import bisect_left, bisect_right
 
 def cramers_v(x, y):
-    confusion_matrix = pd.crosstab(x,y)
-    chi_val, p_val, dof, expected = scipy.stats.chi2_contingency(confusion_matrix)
-    n = confusion_matrix.sum().sum()
+    contingency_matrix = pd.crosstab(x,y)
+    chi_val, p_val, dof, expected = scipy.stats.chi2_contingency(contingency_matrix)
+    n = contingency_matrix.sum().sum()
     phi2 = chi_val/n
-    r,k = confusion_matrix.shape
+    r,k = contingency_matrix.shape
     phi2corr = max(0, phi2-((k-1)*(r-1))/(n-1))
     rcorr = r-((r-1)**2)/(n-1)
     kcorr = k-((k-1)**2)/(n-1)
     return np.sqrt(phi2corr/min((kcorr-1),(rcorr-1))), p_val
     
-m_nid_aspiny_flat = [item for sublist in m_obs_aspiny for item in sublist]
-m_nid_spiny_flat = [item for sublist in m_obs_spiny for item in sublist]
+m_nid_aspiny_flat = np.array([item for sublist in m_obs_aspiny for item in sublist])
+m_nid_spiny_flat = np.array([item for sublist in m_obs_spiny for item in sublist])
 
-print(cramers_v(np.array(m_nid_spiny_flat), np.array(m_c_spiny)))
-print(cramers_v(np.array(m_nid_aspiny_flat), np.array(m_c_aspiny)))
+print('Pearsons chi-square')
+print(cramers_v(m_nid_spiny_flat, np.array(m_c_spiny)))
+print(cramers_v(m_nid_aspiny_flat, np.array(m_c_aspiny)))
+
+def bakers_gamma(x, y):
+    disc = 0
+    ties = 0
+    conc = 0
+
+    for i in range(len(y)):
+        cur_disc = bisect_left(x, y[i])
+        cur_ties = bisect_right(x, y[i]) - cur_disc
+        disc += cur_disc
+        ties += cur_ties
+        conc += len(x) - cur_ties - cur_disc
+
+    bakers_gamma = (conc-disc)/(conc+disc)
+    
+    return bakers_gamma
+
+print('Bakers Gamma')
+print(bakers_gamma(np.array(m_c_spiny), m_nid_spiny_flat))
+print(bakers_gamma(np.array(m_c_aspiny), m_nid_aspiny_flat))
+
+print('Normalized Mutual Information')
+print(sklearn.metrics.normalized_mutual_info_score(np.array(m_c_spiny), m_nid_spiny_flat))
+print(sklearn.metrics.normalized_mutual_info_score(np.array(m_c_aspiny), m_nid_aspiny_flat))
+
+print('Homogeneity, Completeness, V-Measure')
+print(sklearn.metrics.homogeneity_completeness_v_measure(np.array(m_c_spiny), m_nid_spiny_flat))
+print(sklearn.metrics.homogeneity_completeness_v_measure(np.array(m_c_aspiny), m_nid_aspiny_flat))
 
 
-#%% Metric testing
+#%% Metric Testing
 
 branch_length_average = 40.99789638178139
 rgymean = 295.33080920530085
@@ -976,7 +1009,7 @@ for n in range(5):
     ind2_aspiny_idx_sort_all.append(ind2_aspiny_idx_sort)
     ind2_spiny_idx_sort_all.append(ind2_spiny_idx_sort)
 
-#%% Metric testing plotting
+#%% Metric Testing Plots
 
 import matplotlib.ticker as ticker
 from mpl_toolkits.axisartist.parasite_axes import SubplotHost
