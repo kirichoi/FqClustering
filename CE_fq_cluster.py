@@ -17,11 +17,11 @@ import copy
 
 os.chdir(os.path.dirname(__file__))
 
-fp = [f for f in os.listdir('./CE_fq_new') if os.path.isfile(os.path.join('./CE_fq_new', f))]
+fp = [f for f in os.listdir('./CE_fq') if os.path.isfile(os.path.join('./CE_fq', f))]
 neuron_id = copy.deepcopy(fp)
 neuron_id = [e[:-4] for e in neuron_id]
 neuron_id = np.array(neuron_id)
-fp = [os.path.join('./CE_fq_new', f) for f in fp]
+fp = [os.path.join('./CE_fq', f) for f in fp]
 
 fq = np.empty((len(fp), 601))
 
@@ -320,7 +320,6 @@ for i,j in enumerate(ind3_idx_sort):
     plt.xticks(fontsize=18)
     plt.yticks(fontsize=18)
     plt.title("$C^{CE}_{" + str(i+1) + "}$", fontsize=15, pad=10)
-    # plt.savefig('./CEfigures/Fq_C_' + str(i+1) + '_3.pdf', dpi=300, bbox_inches='tight')
     plt.show()
 
 
@@ -344,7 +343,6 @@ for i in range(len(ind3_idx_sort)):
                     plt.plot(morph_line[:,1], morph_line[:,0], color=cmap(i))
     ax.set_xlim(-360, 470)
     ax.set_ylim(-40, 35)
-    # plt.savefig('./CEfigures/morph_CE_c' + str(i+1) + '_3.png', dpi=300, bbox_inches='tight')
     plt.show()
 
 #%% Neuron morphology poster per cluster
@@ -406,7 +404,6 @@ for j,i in enumerate(ind3_idx_sort):
             ax[int(n/col)][n-int(n/col)*col].set_ylim(-30, 30)
         
     plt.tight_layout()
-    # plt.savefig('./CE_C' + str(j+1) + '.pdf', dpi=300, bbox_inches='tight')
     plt.close()
 
 
@@ -435,12 +432,10 @@ for j in range(5):
     fracs = np.array(test_dist3[j])[tidx]
     total = sum(fracs)
     _, _, autotexts = ax[j].pie(fracs, radius=2*np.sqrt(tl_sum[j]/np.max(tl_sum)), autopct=lambda p: '{:.0f}'.format(p * total / 100), colors=cl[tidx])
-    # ax[j].axis('equal')
     ax[j].set_title(category_names[j], fontsize=18)
     for autotext in autotexts:
         autotext.set_color('white')
         autotext.set_size(15)
-# plt.savefig('./CEfigures/pie_CE_ds_1.pdf', dpi=300, bbox_inches='tight')
 plt.show()
 
 #%% Subclusters in cluster 4 and 5
@@ -537,12 +532,10 @@ for i in range(3):
         fracs = np.array(test_dist1[i*5+j])[tidx]
         total = sum(fracs)
         _, _, autotexts = ax[i][j].pie(fracs, radius=1.5*np.sqrt(tl1_sum[j]/np.max(tl1_sum)), autopct=lambda p: '{:.0f}'.format(p * total / 100), colors=cl[tidx])
-        # ax[i][j].axis('equal')
         ax[i][j].set_title(category_names[i*5+j], fontsize=18)
         for autotext in autotexts:
             autotext.set_color('white')
             autotext.set_size(15)
-# plt.savefig('./CEfigures/pie_subcluster_CE4_ds_1.pdf', dpi=300, bbox_inches='tight')
 plt.show()
 
 test_dist2 = []
@@ -568,12 +561,10 @@ for i in range(2):
         fracs = np.array(test_dist2[i*5+j])[tidx]
         total = sum(fracs)
         _, _, autotexts = ax[i][j].pie(fracs, radius=1.5*np.sqrt(tl2_sum[j]/np.max(tl2_sum)), autopct=lambda p: '{:.0f}'.format(p * total / 100), colors=cl[tidx])
-        # ax[i][j].axis('equal')
         ax[i][j].set_title(category_names[i*5+j], fontsize=18)
         for autotext in autotexts:
             autotext.set_color('white')
             autotext.set_size(15)
-# plt.savefig('./CEfigures/pie_subcluster_CE5_ds_1.pdf', dpi=300, bbox_inches='tight')
 plt.show()
 
 #%% Neuron reconstruction diagram per cluster with function
@@ -600,12 +591,8 @@ for f in ind3_idx_sort[3]:
         else:
             morph_line = np.vstack((morph_coor[f][morph_id[f].index(morph_parent[f][p])], morph_coor[f][p]))
             plt.plot(morph_line[:,1], morph_line[:,0], color=co)
-# ax.set_xlim(-360, -200)
-# ax.set_ylim(-30, 25)
 ax.set_xlim(-360, 470)
 ax.set_ylim(-40, 35)
-# ax.set_zlim(-300, 300)
-# plt.savefig('./CEfigures/morph_CE_c4_f_t_1.png', dpi=300, bbox_inches='tight')
 plt.show()
 
 fig = plt.figure(figsize=(24, 1))
@@ -630,12 +617,8 @@ for f in ind3_idx_sort[4]:
         else:
             morph_line = np.vstack((morph_coor[f][morph_id[f].index(morph_parent[f][p])], morph_coor[f][p]))
             plt.plot(morph_line[:,1], morph_line[:,0], color=co)
-# ax.set_xlim(-360, -200)
-# ax.set_ylim(-30, 25)
 ax.set_xlim(-360, 470)
 ax.set_ylim(-40, 35)
-# ax.set_zlim(-300, 300)
-# plt.savefig('./CEfigures/morph_CE_c5_f_1.png', dpi=300, bbox_inches='tight')
 plt.show()
 
 #%% Neuron reconstruction diagram per function
@@ -668,9 +651,6 @@ for i in range(len(np.unique(neuron_type_fixed))):
                 plt.plot(morph_line[:,1], morph_line[:,0], color=co)
     ax.set_xlim(-360, 470)
     ax.set_ylim(-40, 35)
-    # ax.set_zlim(-300, 300)
-    
-    # plt.savefig('./CEfigures/morph_CE_f_' + str(np.unique(neuron_type_fixed)[i]) + '_1.png', dpi=300, bbox_inches='tight')
     plt.show()
 
 #%% Metric testing
@@ -778,10 +758,8 @@ ax3.set_yticks(np.arange(5))
 ax3.invert_yaxis()
 ax3.yaxis.set_major_formatter(ticker.NullFormatter())
 ax3.yaxis.set_minor_locator(ticker.FixedLocator((np.arange(5) + 0.5)))
-# ax2.xaxis.set_minor_formatter(ticker.FixedFormatter(glo_list_cluster))
 ax3.yaxis.set_minor_formatter(ticker.FixedFormatter(['Euclidean', 'Manhattan', 'Cosine', 'Frechet']))
 ax3.axis["left"].minor_ticklabels.set(fontsize=6, rotation_mode='default')
-# plt.savefig('./CEfigures/CE_metric_test_1.svg', dpi=300, bbox_inches='tight')
 plt.show()
 
 

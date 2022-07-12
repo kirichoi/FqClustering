@@ -38,7 +38,7 @@ for i,j in enumerate(fp):
 
 #%% Read reconstructions
 
-PATH2 = r'./TEMCA2/Skels connectome_mod'
+PATH2 = r'./TEMCA2/Skels connectome'
 
 fp2 = [w.replace(PATH, PATH2) for w in fp]
 fp2 = [w.replace('.npy', '.swc') for w in fp2]
@@ -339,7 +339,6 @@ for i,j in enumerate(ind_full_idx_sort):
     plt.xticks(fontsize=18)
     plt.yticks(fontsize=18)
     plt.title("$C^{Full}_{" + str(i+1) + "}$", fontsize=15, pad=10)
-    # plt.savefig('./Drosfigures/Fq_Full_c' + str(i+1) + '.pdf', dpi=300, bbox_inches='tight')
     plt.show()
 
 
@@ -354,10 +353,8 @@ for i,j in enumerate(ind_full_idx_sort):
     
     for f in j:
         fig = plt.figure(figsize=(16, 16))
-        # ax = plt.axes(projection='3d')
         ax = fig.add_subplot(111)
         ax.set_xlim(375, 625)
-        # ax.set_ylim(400, 150)
         ax.set_ylim(0, 250)
         ax.axis('off')
         
@@ -368,7 +365,6 @@ for i,j in enumerate(ind_full_idx_sort):
             else:
                 morph_line = np.vstack((morph_coor[f][morph_id[f].index(morph_parent[f][p])], morph_coor[f][p]))
                 plt.plot(morph_line[:,0], morph_line[:,2], color=cmap(i))
-        # plt.savefig(os.path.join(dirpath, neuron_id[f]), dpi=300, bbox_inches='tight')
         plt.close()
 
 
@@ -492,7 +488,6 @@ for i,j in enumerate(ind_AL_idx_sort):
     plt.xticks(fontsize=18)
     plt.yticks(fontsize=18)
     plt.title("$C^{AL}_{" + str(i+1) + "}$", fontsize=15, pad=10)
-    # plt.savefig('./Drosfigures/Fq_AL_c' + str(i+1) + '.pdf', dpi=300, bbox_inches='tight')
     plt.show()
 
 #%% PN reconstruction diagram per cluster at AL 
@@ -526,7 +521,6 @@ for i,j in enumerate(ind_AL_idx_sort):
                     plt.plot(morph_line[:,0], morph_line[:,2], color=(1.0, 0.25, 0.0, 1.0))
                 else:
                     plt.plot(morph_line[:,0], morph_line[:,2], color=cmap(i))
-        # plt.savefig(os.path.join(dirpath, AL_id[f]), dpi=300, bbox_inches='tight')
         plt.close()
 
 #%% Neuron morphology Poster per AL cluster
@@ -591,7 +585,6 @@ for i,c in enumerate(ind_AL_idx_sort):
             ax[int(n/col)][n-int(n/col)*col].set_ylim(0, 150)
     
     plt.tight_layout()
-    # plt.savefig('./Dros_AL_C' + str(i+1) + '.pdf', dpi=300, bbox_inches='tight')
     plt.close()
 
 #%% Read MB calyx Fq
@@ -720,7 +713,6 @@ for i,j in enumerate(ind_MB_idx_sort):
     plt.xticks(fontsize=18)
     plt.yticks(fontsize=18)
     plt.title("$C^{MB}_{" + str(i+1) + "}$", fontsize=15, pad=10)
-    # plt.savefig('./Drosfigures/Fq_MB_c' + str(i+1) + '.pdf', dpi=300, bbox_inches='tight')
     plt.show()
 
 #%% PN reconstruction diagram per cluster at MB calyx
@@ -756,7 +748,6 @@ for i,j in enumerate(ind_MB_idx_sort):
                     plt.plot(morph_line[:,0], morph_line[:,2], color=(1.0, 0.25, 0.0, 1.0))
                 else:
                     plt.plot(morph_line[:,0], morph_line[:,2], color=cmap(i))
-        # plt.savefig(os.path.join(dirpath, MB_id[f]), dpi=300, bbox_inches='tight')
         plt.close()
 
 #%% Neuron morphology poster per MB calyx cluster
@@ -821,7 +812,6 @@ for i,c in enumerate(ind_MB_idx_sort):
             ax[int(n/col)][n-int(n/col)*col].set_ylim(100, 250)
     
     plt.tight_layout()
-    # plt.savefig('./Dros_MB_C' + str(i+1) + '.pdf', dpi=300, bbox_inches='tight')
     plt.close()
 
 #%% Read LH Fq
@@ -942,7 +932,6 @@ for i,j in enumerate(ind_LH_idx_sort):
     plt.xticks(fontsize=18)
     plt.yticks(fontsize=18)
     plt.title("$C^{LH}_{" + str(i+1) + "}$", fontsize=15, pad=10)
-    # plt.savefig('./Drosfigures/Fq_LH_c' + str(i+1) + '.pdf', dpi=300, bbox_inches='tight')
     plt.show()
 
 #%% PN reconstruction diagram per cluster at LH
@@ -976,7 +965,6 @@ for i,j in enumerate(ind_LH_idx_sort):
                     plt.plot(morph_line[:,0], morph_line[:,2], color=(1.0, 0.25, 0.0, 1.0))
                 else:
                     plt.plot(morph_line[:,0], morph_line[:,2], color=cmap(i))
-        # plt.savefig(os.path.join(dirpath, LH_id[f]), dpi=300, bbox_inches='tight')
         plt.close()
 
 #%% Neuron morphology poster per LH cluster
@@ -1041,7 +1029,6 @@ for i,c in enumerate(ind_LH_idx_sort):
             ax[int(n/col)][n-int(n/col)*col].set_ylim(100, 250)
     
     plt.tight_layout()
-    # plt.savefig('./Dros_LH_C' + str(i+1) + '.pdf', dpi=300, bbox_inches='tight')
     plt.close()
 
 #%% Metric testing full PN
@@ -1150,10 +1137,8 @@ ax3.set_yticks(np.arange(5))
 ax3.invert_yaxis()
 ax3.yaxis.set_major_formatter(ticker.NullFormatter())
 ax3.yaxis.set_minor_locator(ticker.FixedLocator((np.arange(5) + 0.5)))
-# ax2.xaxis.set_minor_formatter(ticker.FixedFormatter(glo_list_cluster))
 ax3.yaxis.set_minor_formatter(ticker.FixedFormatter(['Euclidean', 'Manhattan', 'Cosine', 'Frechet']))
 ax3.axis["left"].minor_ticklabels.set(fontsize=6, rotation_mode='default')
-# plt.savefig('./Drosfigures/full_metric_test_1.svg', dpi=300, bbox_inches='tight')
 plt.show()
 
 #%% Metric testing diagram PN at AL
@@ -1267,7 +1252,6 @@ ax3.yaxis.set_major_formatter(ticker.NullFormatter())
 ax3.yaxis.set_minor_locator(ticker.FixedLocator((np.arange(5) + 0.5)))
 ax3.yaxis.set_minor_formatter(ticker.FixedFormatter(['Euclidean', 'Manhattan', 'Cosine', 'Frechet']))
 ax3.axis["left"].minor_ticklabels.set(fontsize=6, rotation_mode='default')
-# plt.savefig('./Drosfigures/AL_metric_test_1.svg', dpi=300, bbox_inches='tight')
 plt.show()
 
 #%% Metric testing PN at MB calyx
@@ -1381,7 +1365,6 @@ ax3.yaxis.set_major_formatter(ticker.NullFormatter())
 ax3.yaxis.set_minor_locator(ticker.FixedLocator((np.arange(5) + 0.5)))
 ax3.yaxis.set_minor_formatter(ticker.FixedFormatter(['Euclidean', 'Manhattan', 'Cosine', 'Frechet']))
 ax3.axis["left"].minor_ticklabels.set(fontsize=6, rotation_mode='default')
-# plt.savefig('./Drosfigures/MB_metric_test_1.svg', dpi=300, bbox_inches='tight')
 plt.show()
 
 
@@ -1488,6 +1471,5 @@ ax3.yaxis.set_major_formatter(ticker.NullFormatter())
 ax3.yaxis.set_minor_locator(ticker.FixedLocator((np.arange(5) + 0.5)))
 ax3.yaxis.set_minor_formatter(ticker.FixedFormatter(['Euclidean', 'Manhattan', 'Cosine', 'Frechet']))
 ax3.axis["left"].minor_ticklabels.set(fontsize=6, rotation_mode='default')
-# plt.savefig('./Drosfigures/LH_metric_test_1.svg', dpi=300, bbox_inches='tight')
 plt.show()
 

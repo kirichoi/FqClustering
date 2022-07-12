@@ -15,7 +15,7 @@ import copy
 from collections import Counter
 
 # Flag to query neurons from the database
-DB_ACCESS = False
+DB_ACCESS = False # Set True to query 
 
 #%%
 

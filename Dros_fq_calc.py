@@ -36,14 +36,17 @@ def formfactor(args):
         qrvec = q_range[q]*ccdisttri
         Pq_ALLEN[q] = np.divide(np.divide(2*np.sum(np.sin(qrvec)/qrvec), lenucoor), lenucoor) + 1/lenucoor
     
-    np.save(r'./pq/' + os.path.basename(args)[:-4] + '.npy', Pq_ALLEN)
+    np.save(r'./Dros_fq/' + os.path.basename(args)[:-4] + '.npy', Pq_ALLEN)
 
 if __name__ == '__main__': 
-    PATH = r'./Skels connectome_mod'
+    PATH = r'./Dros_swc' # Path to .swc files
 
     fp = [f for f in os.listdir(PATH) if os.path.isfile(os.path.join(PATH, f))]
     fp = [os.path.join(PATH, f) for f in fp]
     fp.sort()
+    
+    if not os.path.exists(r'./Dros_fq/'):
+        os.makedirs(r'./Dros_fq/')
     
 	# multiprocessing 
 	# use 30 threads and refresh the worker after 10 tasks

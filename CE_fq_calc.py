@@ -36,15 +36,18 @@ def formfactor(args):
         qrvec = q_range[q]*ccdisttri
         Pq_CE[q] = np.divide(np.divide(2*np.sum(np.sin(qrvec)/qrvec), lenucoor), lenucoor) + 1/lenucoor
     
-    np.save(r'./CE_pq/' + os.path.basename(args)[:-4] + '.npy', Pq_CE)
+    np.save(r'./CE_fq/' + os.path.basename(args)[:-4] + '.npy', Pq_CE)
 
 if __name__ == '__main__': 
-    PATH = r'./CE_swc'
+    PATH = r'./CE_swc' # Path to .swc files
 
     fp = [f for f in os.listdir(PATH) if os.path.isfile(os.path.join(PATH, f))]
     fp = [os.path.join(PATH, f) for f in fp]
     fp.sort()
     
+    if not os.path.exists(r'./CE_fq/'):
+        os.makedirs(r'./CE_fq/')
+
 	# multiprocessing 
 	# use 30 threads and refresh the worker after 10 tasks
     pool = mp.Pool(30, maxtasksperchild=10)

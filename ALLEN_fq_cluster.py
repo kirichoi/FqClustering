@@ -257,6 +257,38 @@ for i,j in enumerate(ind2_spiny_idx):
 
 ind2_spiny_idx_sort = list(np.array(ind2_spiny_idx, dtype=object)[np.argsort(ind2_spiny_rgy)[::-1]])
 
+#%% Dendrogram
+
+fig, ax = plt.subplots(figsize=(30, 5))
+R_n_aspiny = scipy.cluster.hierarchy.dendrogram(link_aspiny,
+                                        orientation='top',
+                                        labels=neuron_id[aspiny_idx],
+                                        distance_sort='ascending',
+                                        show_leaf_counts=False,
+                                        leaf_font_size=6,
+                                        color_threshold=1.5)
+ax.set_yticks([])
+ax.spines["top"].set_visible(False)
+ax.spines["right"].set_visible(False)
+ax.spines["bottom"].set_visible(False)
+ax.spines["left"].set_visible(False)
+plt.show()
+
+fig, ax = plt.subplots(figsize=(30, 5))
+R_n_spiny = scipy.cluster.hierarchy.dendrogram(link_spiny,
+                                        orientation='top',
+                                        labels=neuron_id[spiny_idx],
+                                        distance_sort='ascending',
+                                        show_leaf_counts=False,
+                                        leaf_font_size=6,
+                                        color_threshold=1.5)
+ax.set_yticks([])
+ax.spines["top"].set_visible(False)
+ax.spines["right"].set_visible(False)
+ax.spines["bottom"].set_visible(False)
+ax.spines["left"].set_visible(False)
+plt.show()
+
 #%% Aspiny F(q) Curves per Cluster
 
 cmap = cm.get_cmap('viridis', len(ind2_aspiny_idx_sort))
@@ -309,7 +341,6 @@ for i,j in enumerate(ind2_aspiny_idx_sort):
     plt.xticks(fontsize=18)
     plt.yticks(fontsize=18)
     plt.title("$C^{aspiny}_{" + str(i+1) + "}$", fontsize=15, pad=10)
-    # plt.savefig('./Allenfigures/Fq_aspiny2_' + str(i+1) + '.pdf', dpi=300, bbox_inches='tight')
     plt.show()
 
 #%% Spiny F(q) Curves per Cluter
@@ -364,7 +395,6 @@ for i,j in enumerate(ind2_spiny_idx_sort):
     plt.xticks(fontsize=18)
     plt.yticks(fontsize=18)
     plt.title("$C^{spiny}_{" + str(i+1) + "}$", fontsize=15, pad=10)
-    # plt.savefig('./Allenfigures/Fq_spiny2_' + str(i+1) + '.pdf', dpi=300, bbox_inches='tight')
     plt.show()
 
 
@@ -383,7 +413,6 @@ plt.hist(sc5f, bins=67, density=True, color='tab:red')
 plt.xlabel('Branch Length $l$ ($\mu m$)', fontsize=15)
 plt.ylabel('$P(l)$', fontsize=15)
 ax.ticklabel_format(axis='y', style='sci', scilimits=(-3,-3))
-# plt.savefig('./Allenfigures/l_dist_sc5_2.pdf', dpi=300, bbox_inches='tight')
 plt.show()
 
 #%% Box plot of branch length statistics for all neurons
@@ -447,7 +476,6 @@ ax[3].tick_params(axis = 'y', which = 'minor', labelsize = 14)
 ax[3].tick_params(axis = 'x', which = 'major', labelsize = 14)
 ax[3].set_xlabel(r'Length $(\mu m)$', fontsize=17)
 plt.tight_layout()
-# plt.savefig('./Allenfigures/length_all_box.pdf', dpi=300, bbox_inches='tight')
 plt.show()
 
 
@@ -548,7 +576,6 @@ for i,c in enumerate(np.unique(ind2_spiny)[np.argsort(ind2_spiny_rgy)[::-1]]):
         ax.set_ylim((0.5*(Z.max()+Z.min())-0.5*max_range, 0.5*(Z.max()+Z.min())+0.5*max_range))
 
         plt.tight_layout()
-        # plt.savefig(os.path.join(dirpath, neuron_id[j]), dpi=300, bbox_inches='tight')
         plt.close()
 
 
@@ -589,7 +616,6 @@ for i,c in enumerate(np.unique(ind2_aspiny)[np.argsort(ind2_aspiny_rgy)[::-1]]):
         ax.set_ylim((0.5*(Z.max()+Z.min())-0.5*max_range, 0.5*(Z.max()+Z.min())+0.5*max_range))
 
         plt.tight_layout()
-        # plt.savefig(os.path.join(dirpath, neuron_id[j]), dpi=300, bbox_inches='tight')
         plt.close()
 
 #%% Spiny and aspiny poster per cluster
@@ -684,7 +710,6 @@ for i,c in enumerate(np.unique(ind2_spiny)):
             ax[int(n/col)][n-int(n/col)*col].set_ylim((0.5*(Z.max()+Z.min())-0.5*max_range, 0.5*(Z.max()+Z.min())+0.5*max_range))
 
     plt.tight_layout()
-    # plt.savefig('./spiny_C' + str(c) + '.pdf', dpi=300, bbox_inches='tight')
     plt.close()
 
 
@@ -767,7 +792,6 @@ for i,c in enumerate(np.unique(ind2_aspiny)):
             ax[int(n/col)][n-int(n/col)*col].set_ylim((0.5*(Z.max()+Z.min())-0.5*max_range, 0.5*(Z.max()+Z.min())+0.5*max_range))
 
     plt.tight_layout()
-    # plt.savefig('./aspiny_C' + str(c) + '.pdf', dpi=300, bbox_inches='tight')
     plt.close()
 
 #%% mtype Comparison with Gouwens et al., 2019 paper
@@ -780,7 +804,6 @@ m_type_aspiny = np.array(['Aspiny_1', 'Aspiny_2', 'Aspiny_3', 'Aspiny_4', 'Aspin
 m_type_spiny = np.array(['Spiny_1', 'Spiny_2', 'Spiny_3', 'Spiny_4', 'Spiny_5', 'Spiny_6', 'Spiny_7',
                          'Spiny_8', 'Spiny_9', 'Spiny_10', 'Spiny_11', 'Spiny_12', 'Spiny_13', 'Spiny_14',
                          'Spiny_15', 'Spiny_16', 'Spiny_17', 'Spiny_18', 'Spiny_19'])
-
 m_nid_aspiny = []
 
 for i in m_type_aspiny:
@@ -794,28 +817,39 @@ for i in m_type_spiny:
     m_nid_spiny.append(np.array(gouwens_df['specimen_id'].iloc[idx]))
 
 m_obs_aspiny = []
+m_obs_aspiny_str = []
 m_c_aspiny = []
+m_c_aspiny_str = []
 
 for i in range(len(m_nid_aspiny)):
     m_obs_aspiny_temp = []
+    m_obs_aspiny_str_temp = []
     for j in m_nid_aspiny[i]:
         if str(j) in neuron_id:
             m_obs_aspiny_temp.append(ind2_aspiny[np.argwhere(aspiny_idx == np.where(neuron_id == str(j))[0])[0]][0])
-            m_c_aspiny.append(m_type_aspiny[i])
+            m_obs_aspiny_str_temp.append('C' + str(ind2_aspiny[np.argwhere(aspiny_idx == np.where(neuron_id == str(j))[0])[0]][0]))
+            m_c_aspiny_str.append(m_type_aspiny[i])
+            m_c_aspiny.append(int(m_type_aspiny[i].split('_')[1]))
     m_obs_aspiny.append(m_obs_aspiny_temp)
+    m_obs_aspiny_str.append(m_obs_aspiny_str_temp)
     
         
 m_obs_spiny = []
+m_obs_spiny_str = []
 m_c_spiny = []
+m_c_spiny_str = []
 
 for i in range(len(m_nid_spiny)):
     m_obs_spiny_temp = []
+    m_obs_spiny_str_temp = []
     for j in m_nid_spiny[i]:
         if str(j) in neuron_id:
             m_obs_spiny_temp.append(ind2_spiny[np.argwhere(spiny_idx == np.where(neuron_id == str(j))[0])[0]][0])
-            m_c_spiny.append(m_type_spiny[i])
+            m_obs_spiny_str_temp.append('C' + str(ind2_spiny[np.argwhere(spiny_idx == np.where(neuron_id == str(j))[0])[0]][0]))
+            m_c_spiny_str.append(m_type_spiny[i])
+            m_c_spiny.append(int(m_type_spiny[i].split('_')[1]))
     m_obs_spiny.append(m_obs_spiny_temp)
-
+    m_obs_spiny_str.append(m_obs_spiny_str_temp)
     
 #%% Pearson's chi-square, Baker's Gamma, normalized mutual information, and homogeneity
 
@@ -823,22 +857,27 @@ import sklearn
 from bisect import bisect_left, bisect_right
 
 def cramers_v(x, y):
-    contingency_matrix = pd.crosstab(x,y)
-    chi_val, p_val, dof, expected = scipy.stats.chi2_contingency(contingency_matrix)
-    n = contingency_matrix.sum().sum()
+    contingency_table = pd.crosstab(x,y)
+    chi_val, p_val, dof, expected = scipy.stats.chi2_contingency(contingency_table)
+    n = contingency_table.sum().sum()
     phi2 = chi_val/n
-    r,k = contingency_matrix.shape
+    r,k = contingency_table.shape
     phi2corr = max(0, phi2-((k-1)*(r-1))/(n-1))
     rcorr = r-((r-1)**2)/(n-1)
     kcorr = k-((k-1)**2)/(n-1)
     return np.sqrt(phi2corr/min((kcorr-1),(rcorr-1))), p_val
     
-m_nid_aspiny_flat = np.array([item for sublist in m_obs_aspiny for item in sublist])
-m_nid_spiny_flat = np.array([item for sublist in m_obs_spiny for item in sublist])
+m_obs_aspiny_flat = np.array([item for sublist in m_obs_aspiny for item in sublist])
+m_obs_spiny_flat = np.array([item for sublist in m_obs_spiny for item in sublist])
+m_obs_aspiny_str_flat = np.array([item for sublist in m_obs_aspiny_str for item in sublist])
+m_obs_spiny_str_flat = np.array([item for sublist in m_obs_spiny_str for item in sublist])
+
+m_nid_spiny_flat = np.array([item for sublist in m_nid_spiny for item in sublist])
+m_nid_aspiny_flat = np.array([item for sublist in m_nid_aspiny for item in sublist])
 
 print('Pearsons chi-square')
-print(cramers_v(m_nid_spiny_flat, np.array(m_c_spiny)))
-print(cramers_v(m_nid_aspiny_flat, np.array(m_c_aspiny)))
+print(cramers_v(m_obs_spiny_str_flat, np.array(m_c_spiny_str)))
+print(cramers_v(m_obs_aspiny_str_flat, np.array(m_c_aspiny_str)))
 
 def bakers_gamma(x, y):
     disc = 0
@@ -857,17 +896,16 @@ def bakers_gamma(x, y):
     return bakers_gamma
 
 print('Bakers Gamma')
-print(bakers_gamma(np.array(m_c_spiny), m_nid_spiny_flat))
-print(bakers_gamma(np.array(m_c_aspiny), m_nid_aspiny_flat))
+print(bakers_gamma(np.array(m_nid_spiny_flat), neuron_id[spiny_idx][R_n_spiny['leaves']].astype(int)))
+print(bakers_gamma(np.array(m_nid_aspiny_flat), neuron_id[aspiny_idx][R_n_aspiny['leaves']].astype(int)))
 
 print('Normalized Mutual Information')
-print(sklearn.metrics.normalized_mutual_info_score(np.array(m_c_spiny), m_nid_spiny_flat))
-print(sklearn.metrics.normalized_mutual_info_score(np.array(m_c_aspiny), m_nid_aspiny_flat))
+print(sklearn.metrics.normalized_mutual_info_score(np.array(m_c_spiny_str), m_obs_spiny_str_flat))
+print(sklearn.metrics.normalized_mutual_info_score(np.array(m_c_aspiny_str), m_obs_aspiny_str_flat))
 
 print('Homogeneity, Completeness, V-Measure')
-print(sklearn.metrics.homogeneity_completeness_v_measure(np.array(m_c_spiny), m_nid_spiny_flat))
-print(sklearn.metrics.homogeneity_completeness_v_measure(np.array(m_c_aspiny), m_nid_aspiny_flat))
-
+print(sklearn.metrics.homogeneity_completeness_v_measure(np.array(m_c_spiny_str), m_obs_spiny_str_flat))
+print(sklearn.metrics.homogeneity_completeness_v_measure(np.array(m_c_aspiny_str), m_obs_aspiny_str_flat))
 
 #%% Metric Testing
 
@@ -1087,10 +1125,8 @@ ax3.set_yticks(np.arange(5))
 ax3.invert_yaxis()
 ax3.yaxis.set_major_formatter(ticker.NullFormatter())
 ax3.yaxis.set_minor_locator(ticker.FixedLocator((np.arange(5) + 0.5)))
-# ax2.xaxis.set_minor_formatter(ticker.FixedFormatter(glo_list_cluster))
 ax3.yaxis.set_minor_formatter(ticker.FixedFormatter(['Euclidean', 'Manhattan', 'Cosine', 'Frechet']))
 ax3.axis["left"].minor_ticklabels.set(fontsize=6, rotation_mode='default')
-# plt.savefig('./Allenfigures/aspiny_metric_test_1.svg', dpi=300, bbox_inches='tight')
 plt.show()
 
 spiny_ind_chg[1][spiny_ind_chg[1] == 3] = 9
@@ -1134,10 +1170,8 @@ ax3.set_yticks(np.arange(5))
 ax3.invert_yaxis()
 ax3.yaxis.set_major_formatter(ticker.NullFormatter())
 ax3.yaxis.set_minor_locator(ticker.FixedLocator((np.arange(5) + 0.5)))
-# ax2.xaxis.set_minor_formatter(ticker.FixedFormatter(glo_list_cluster))
 ax3.yaxis.set_minor_formatter(ticker.FixedFormatter(['Euclidean', 'Manhattan', 'Cosine', 'Frechet']))
 ax3.axis["left"].minor_ticklabels.set(fontsize=6, rotation_mode='default')
-# plt.savefig('./Allenfigures/spiny_metric_test_1.svg', dpi=300, bbox_inches='tight')
 plt.show()
 
 

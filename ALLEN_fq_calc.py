@@ -39,12 +39,15 @@ def formfactor(args):
     np.save(r'./ALLEN_fq/' + args[22:31] + '.npy', Pq_ALLEN)
     
 if __name__ == '__main__': 
-    PATH = r'./cell_types'
+    PATH = r'./cell_types' # Path to .swc files
 
     fp = [f for f in os.listdir(PATH) if os.path.isdir(os.path.join(PATH, f))]
     fp = [s + '/reconstruction.swc' for s in fp]
     fp = [os.path.join(PATH, f) for f in fp]
     fp.sort()
+    
+    if not os.path.exists(r'./ALLEN_fq/'):
+        os.makedirs(r'./ALLEN_fq/')
     
 	# multiprocessing 
 	# use 30 threads and refresh the worker after 10 tasks
