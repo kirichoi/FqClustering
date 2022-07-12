@@ -17,7 +17,7 @@ The methodology has been applieed to three different morphological reconstructio
 - Dros_AL_fq: a folder containing pre-computed F(q) curves of *Drosophila* olfactory PNs at the antennal lobe
 - Dros_MB_fq: a folder containing pre-computed F(q) curves of *Drosophila* olfactory PNs at the mushroom body calyx
 - Dros_LH_fq: a folder containing pre-computed F(q) curves of *Drosophila* olfactory PNs at the lateral horn
-- Supplementary Figures: a .zip file with the complete morphological diagrams of neurons in each cluster sorted by the organisms
+- Supplementary Figures: a folder containing the complete morphological diagrams of neurons in each cluster sorted by the organisms
 
 There are few other necessary files to run the code that are not included in this repository that should be acquired separately.
 
