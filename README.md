@@ -1,6 +1,6 @@
 # FqClustering
 
-A repository containinng the complete set of data to reproduce the results presented in the manuscript titled [Polymer Physics-Based Classification of Neurons](https://link.springer.com/article/10.1007/s12021-022-09605-3)
+A repository containinng the complete set of data to reproduce the results presented in the manuscript titled [**_Polymer Physics-Based Classification of Neurons_**](https://link.springer.com/article/10.1007/s12021-022-09605-3)
 
 Copyright 2022 Kiri Choi
 
