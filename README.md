@@ -1,5 +1,10 @@
 # FqClustering
 
+A repository containinng the complete set of data to reproduce the results presented in the manuscript titled [Polymer Physics-Based Classification of Neurons](https://link.springer.com/article/10.1007/s12021-022-09605-3)
+
+Copyright 2022 Kiri Choi
+
+## Description
 Python scripts for clustering neurons from morphological reconstructions using the form factor F(q) curves.
 The methodology has been applieed to three different morphological reconstruction datasets including [mouse primary visual cortex (V1)](https://www.nature.com/articles/s41593-019-0417-0) from the [Allen Cell Type database](https://celltypes.brain-map.org/data), [*Drosophila* olfactory projection neurons (PN)](https://www.cell.com/cell/fulltext/S0092-8674(18)30787-6) from the [TEMCA2 (FAFB) dataset](https://github.com/bocklab/temca2data/tree/master/geometry_analysis/data), and the [*C. elegans* nervous system](https://royalsocietypublishing.org/doi/10.1098/rstb.2017.0382) from the [Openworm c302 framework](https://github.com/openworm/c302).
 
